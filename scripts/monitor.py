@@ -1,370 +1,414 @@
-# monitor.py
-import os, glob, re
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Monthly monitoring for two models over Gold-layer monthly snapshots.
+
+Part 1: Logistic Regression (joblib) under model_bank/logreg/*.joblib
+Part 2: CatBoost (cbm) under model_bank/catboost/*.cbm
+
+Data: datamart/gold/gold_YYYY_MM_DD.csv (inclusive range: 2024-05-01 .. 2024-09-01)
+
+Usage (defaults work if your repo layout matches):
+    python monitor.py
+
+Optional environment overrides:
+    DATA_DIR=/path/to/datamart  MODEL_BANK_DIR=/path/to/model_bank  python monitor.py
+
+Outputs: prints per-month metrics for each model and a final summary table.
+"""
+from __future__ import annotations
+import os
+import sys
+import re
+import glob
+import math
+from dataclasses import dataclass
+from datetime import datetime, date
+from typing import Dict, List, Tuple, Optional
+
 import numpy as np
 import pandas as pd
-import joblib
-from tqdm import tqdm
+
 from sklearn.metrics import (
-    roc_auc_score, f1_score, precision_score, recall_score,
-    average_precision_score, brier_score_loss
+    roc_auc_score,
+    average_precision_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    brier_score_loss,
+    log_loss,
+    accuracy_score,
 )
-import matplotlib.pyplot as plt
 from pathlib import Path
 
-# ========= 配置区 =========
-# default_model_path = (
-#     Path(__file__).resolve().parents[1] / "model_bank"
-#     if os.name == "nt"  # Windows
-#     else Path("/opt/airflow/model_bank")
-# )
-# MODEL_BANK_DIR = Path(os.getenv("MODEL_BANK_DIR", default_model_path))
-from pathlib import Path
-import os
+# ----------------------------
+# Config
+# ----------------------------
+BASE_DIR = Path(
+    os.getenv("PROJECT_ROOT", os.getenv("AIRFLOW_PROJ_DIR", "/opt/airflow"))
+).resolve()
+if not BASE_DIR.exists():
+    BASE_DIR = Path(r"C:\Users\HP\Desktop\MLE\mleproject").resolve()
 
-is_windows = os.name == "nt"
+# === 数据与模型路径 ===
+DATA_DIR = BASE_DIR / "datamart" / "gold"
+MODEL_BANK_DIR = BASE_DIR / "model_bank"
 
-# 项目根：本地=仓库根；容器=/opt/airflow
-BASE_DIR = Path(__file__).resolve().parents[1] if is_windows else Path("/opt/airflow")
+# === 标签列、ID列、快照列候选名 ===
+LABEL_COL_CANDIDATES = ["label", "churn", "is_churn", "target"]
+ID_COL_CANDIDATES = [
+    "Customer_ID", "customerID", "customer_id",
+    "CUSTOMER_ID", "cust_id"
+]
+SNAPSHOT_COL_CANDIDATES = ["snapshot_date", "snapdate", "SNAPSHOT_DATE"]
 
-# 模型根目录（可用环境变量覆盖）
-MODEL_BANK_DIR = Path(os.getenv("MODEL_BANK_DIR", BASE_DIR / "model_bank"))
+# Months to monitor (inclusive; filenames use YYYY_MM_DD)
+START_DATE = date(2024, 5, 1)
+END_DATE   = date(2024, 9, 1)
 
-# 版本号（默认 v1，可用环境变量覆盖）
-MODEL_VERSION = os.getenv("MODEL_VERSION", "v1")
+THRESHOLD = 0.5  # for converting prob -> class
+RANDOM_SEED = 42
+np.random.seed(RANDOM_SEED)
 
-# datamart 根目录（可用环境变量覆盖）
-DATAMART_DIR = Path(os.getenv("DATA_DIR", BASE_DIR / "datamart"))
+# ----------------------------
+# Utilities
+# ----------------------------
+_date_pat = re.compile(r"gold_(\d{4})_(\d{2})_(\d{2})\.csv$")
 
-# 子目录
-LABEL_DIR   = DATAMART_DIR / "gold" / "label_store"
-FEATURE_DIR = DATAMART_DIR / "gold" / "feature_store"
-PRED_DIR    = DATAMART_DIR / "gold" / "predictions"
-OUT_DIR     = DATAMART_DIR / "gold" / "monitoring"
-
-def _mb(*parts) -> Path:
-    """
-    在 model_bank/<MODEL_VERSION>/ 下拼路径；若不存在，再回退到 model_bank 根下找。
-    """
-    # 首选：带版本目录
-    p1 = (MODEL_BANK_DIR / MODEL_VERSION).joinpath(*parts)
-    if p1.exists():
-        return p1.resolve()
-    # 退路：不带版本（兼容老文件）
-    p2 = MODEL_BANK_DIR.joinpath(*parts)
-    if p2.exists():
-        return p2.resolve()
-    raise FileNotFoundError(
-        f"missing artifact; tried: {p1.as_posix()} and {p2.as_posix()} "
-        f"(MODEL_BANK_DIR={MODEL_BANK_DIR.as_posix()}, MODEL_VERSION={MODEL_VERSION})"
-    )
+def parse_date_from_filename(p: str) -> Optional[date]:
+    m = _date_pat.search(os.path.basename(p))
+    if not m:
+        return None
+    y, mth, d = map(int, m.groups())
+    try:
+        return date(y, mth, d)
+    except ValueError:
+        return None
 
 
-THRESHOLD = 0.5
+def find_label_col(df: pd.DataFrame) -> Optional[str]:
+    for c in LABEL_COL_CANDIDATES:
+        if c in df.columns:
+            return c
+    # fallback: try a binary-ish column
+    for c in df.columns:
+        if set(pd.unique(df[c].dropna())) <= {0, 1} and df[c].dtype != object:
+            return c
+    return None
 
-os.makedirs(PRED_DIR, exist_ok=True)
-os.makedirs(OUT_DIR, exist_ok=True)
-# ====================================
+
+def find_first(df: pd.DataFrame, candidates: List[str]) -> Optional[str]:
+    for c in candidates:
+        if c in df.columns:
+            return c
+    return None
 
 
-# ---------- 函数定义 ----------
+def ks_statistic(y_true: np.ndarray, y_prob: np.ndarray) -> float:
+    # Kolmogorov–Smirnov between positive and negative score distributions
+    # Compute empirical CDFs at unique score points
+    order = np.argsort(y_prob)
+    y_sorted = y_true[order]
+    probs_sorted = y_prob[order]
+    # cumulative positives/negatives
+    pos = (y_sorted == 1).astype(int)
+    neg = (y_sorted == 0).astype(int)
+    cum_pos = np.cumsum(pos) / max(1, pos.sum())
+    cum_neg = np.cumsum(neg) / max(1, neg.sum())
+    return float(np.max(np.abs(cum_pos - cum_neg)))
 
-def merge_features_and_labels(
-    feature_dir: str,
-    label_dir: str,
-    start_date: str = "2024_07_01",
-    end_date: str = "2024_12_01"
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """合并 feature_store 下三张表与 label_store 下各月标签（inner join by Customer_ID）"""
 
-    def norm_id(x):
-        if pd.isna(x):
-            return x
-        return str(x).strip().upper()
+def safe_metrics(y_true: np.ndarray, y_prob: np.ndarray, thr: float = THRESHOLD) -> Dict[str, float]:
+    metrics = {}
+    y_true = y_true.astype(int)
+    y_prob = y_prob.astype(float)
 
-    def to_ymd_str(s):
-        s = pd.to_datetime(s, errors="coerce")
-        return s.dt.strftime("%Y-%m-%d")
-
-    # === 读取三张特征表 ===
-    attr_path = os.path.join(feature_dir, "attributes_feature.parquet")
-    clk_path  = os.path.join(feature_dir, "clickstream_features.parquet")
-    fin_path  = os.path.join(feature_dir, "financial_feature.parquet")
-
-    attributes  = pd.read_parquet(attr_path)
-    clickstream = pd.read_parquet(clk_path)
-    financial   = pd.read_parquet(fin_path)
-
-    features = attributes.merge(clickstream, on=["Customer_ID", "snapshot_date"], how="inner")
-    features = features.merge(financial,  on=["Customer_ID", "snapshot_date"], how="inner")
-    print(f"✅ features merge 完成: {features.shape}")
-
-    features["Customer_ID"]   = features["Customer_ID"].map(norm_id)
-    features["snapshot_date"] = to_ymd_str(features["snapshot_date"])
-
-    # === 遍历 label 文件 ===
-    label_files = sorted(glob.glob(os.path.join(label_dir, "gold_label_store_*.parquet")))
-    summary_rows, merged_list = [], []
-    # start_dt, end_dt = pd.to_datetime(start_date), pd.to_datetime(end_date)
-    start_dt = pd.to_datetime(start_date.replace("_", "-"))
-    end_dt = pd.to_datetime(end_date.replace("_", "-"))
-
-    for fpath in label_files:
-        base = os.path.basename(fpath)
-        print(f"\n📄 正在处理: {base}")
-        m = re.search(r"(\d{4})_(\d{2})_(\d{2})", base)
-        if not m:
-            print("⚠️ 文件名无日期，跳过")
-            continue
-        snapshot_date = pd.to_datetime(f"{m.group(1)}-{m.group(2)}-{m.group(3)}")
-        if not (start_dt <= snapshot_date <= end_dt):
-            print(f"⏭️ 跳过 {snapshot_date.date()}（不在时间窗内）")
-            continue
-
-        labels = pd.read_parquet(fpath)
-        if "Customer_ID" not in labels.columns:
-            print("⚠️ 缺少 Customer_ID，跳过")
-            continue
-
-        labels["Customer_ID"] = labels["Customer_ID"].map(norm_id)
-        labels["snapshot_date"] = snapshot_date.strftime("%Y-%m-%d")
-
-        merged = features.merge(labels, on="Customer_ID", how="inner")
-        print(f"✅ merge 后行数: {merged.shape[0]}, 列数: {merged.shape[1]}")
-
-        merged_list.append(merged)
-        summary_rows.append({
-            "file": base,
-            "snapshot_date": snapshot_date.strftime("%Y-%m-%d"),
-            "merged_rows": merged.shape[0],
-            "merged_cols": merged.shape[1],
+    # Degenerate cases
+    unique = np.unique(y_true)
+    if unique.size == 1:
+        # Only accuracy/ll/brier on constant true labels make limited sense
+        metrics.update({
+            "auc": np.nan,
+            "pr_auc": np.nan,
+            "ks": np.nan,
+            "f1": np.nan,
+            "precision": np.nan,
+            "recall": np.nan,
         })
+    else:
+        try:
+            metrics["auc"] = roc_auc_score(y_true, y_prob)
+        except Exception:
+            metrics["auc"] = np.nan
+        try:
+            metrics["pr_auc"] = average_precision_score(y_true, y_prob)
+        except Exception:
+            metrics["pr_auc"] = np.nan
+        try:
+            metrics["ks"] = ks_statistic(y_true, y_prob)
+        except Exception:
+            metrics["ks"] = np.nan
+        y_pred = (y_prob >= thr).astype(int)
+        try:
+            metrics["f1"] = f1_score(y_true, y_pred)
+        except Exception:
+            metrics["f1"] = np.nan
+        try:
+            metrics["precision"] = precision_score(y_true, y_pred, zero_division=0)
+        except Exception:
+            metrics["precision"] = np.nan
+        try:
+            metrics["recall"] = recall_score(y_true, y_pred)
+        except Exception:
+            metrics["recall"] = np.nan
 
-    if not merged_list:
-        raise RuntimeError("❌ 没有任何 label 文件成功 merge，请检查路径或时间窗口。")
+    # Always try these
+    y_pred = (y_prob >= thr).astype(int)
+    try:
+        metrics["accuracy"] = accuracy_score(y_true, y_pred)
+    except Exception:
+        metrics["accuracy"] = np.nan
+    try:
+        metrics["brier"] = brier_score_loss(y_true, y_prob)
+    except Exception:
+        metrics["brier"] = np.nan
+    try:
+        # log_loss needs probs clipped
+        metrics["logloss"] = log_loss(y_true, np.clip(y_prob, 1e-7, 1-1e-7))
+    except Exception:
+        metrics["logloss"] = np.nan
 
-    merged_all_df = pd.concat(merged_list, ignore_index=True)
-    summary_df = pd.DataFrame(summary_rows)
-    print("\n📊 各文件 merge 后的结果：")
-    print(summary_df)
-    return merged_all_df, summary_df
+    metrics["pred_mean"] = float(np.mean(y_prob))
+    metrics["pred_std"] = float(np.std(y_prob))
+    metrics["positives"] = int(np.sum(y_true==1))
+    metrics["negatives"] = int(np.sum(y_true==0))
+    metrics["n"] = int(len(y_true))
+    return metrics
 
 
-def compute_monitor_metrics(
-    merged_df: pd.DataFrame,
-    prob_col: str = "churn_prob",
-    label_col: str = "label",
-    month_col: str = "snapshot_date"
-) -> pd.DataFrame:
-    """计算每月监控指标（AUC、F1、KS、PSI等）"""
-
-    def ks_stat(y_true, y_prob):
-        df = pd.DataFrame({"y": y_true, "p": y_prob}).sort_values("p")
-        pos = (df["y"] == 1).cumsum() / max((df["y"] == 1).sum(), 1)
-        neg = (df["y"] == 0).cumsum() / max((df["y"] == 0).sum(), 1)
-        return np.max(np.abs(pos - neg))
-
-    def psi(actual, expected, bins=10, eps=1e-6):
-        cuts = np.quantile(expected, np.linspace(0, 1, bins+1))
-        cuts[0], cuts[-1] = -np.inf, np.inf
-        e_cnt = np.histogram(expected, bins=cuts)[0] / (len(expected)+eps)
-        a_cnt = np.histogram(actual,   bins=cuts)[0] / (len(actual)+eps)
-        return np.sum((a_cnt - e_cnt) * np.log((a_cnt + eps) / (e_cnt + eps)))
-
-    merged_df = merged_df.copy()
-    merged_df[month_col] = pd.to_datetime(merged_df[month_col], errors="coerce")
-    merged_df["month_str"] = merged_df[month_col].dt.to_period("M").astype(str)
-
-    metrics, base_prob = [], None
-    for month, dfm in merged_df.groupby("month_str"):
-        y = dfm[label_col].values
-        p = dfm[prob_col].values
-        yhat = (p > THRESHOLD).astype(int)
-        if len(np.unique(y)) < 2:
-            print(f"⚠️ {month} 标签全为同类，跳过指标计算。")
+def load_monthly_frames(data_dir: str, start: date, end: date) -> List[Tuple[date, pd.DataFrame]]:
+    paths = sorted(glob.glob(os.path.join(data_dir, "gold_*.csv")))
+    out: List[Tuple[date, pd.DataFrame]] = []
+    for p in paths:
+        d = parse_date_from_filename(p)
+        if d is None:
             continue
-        m = {
-            "month": month,
-            "n": len(dfm),
-            "pos": int(y.sum()),
-            "auc": roc_auc_score(y, p),
-            "pr_auc": average_precision_score(y, p),
-            "f1": f1_score(y, yhat),
-            "precision": precision_score(y, yhat),
-            "recall": recall_score(y, yhat),
-            "ks": ks_stat(y, p),
-            "brier": brier_score_loss(y, p),
-            "pd_rate": p.mean(),
-        }
-        if base_prob is None:
-            m["psi_vs_base"] = np.nan
-            base_prob = p
+        if start <= d <= end:
+            df = pd.read_csv(p)
+            out.append((d, df))
+    # sort by date
+    out.sort(key=lambda x: x[0])
+    return out
+
+
+# ----------------------------
+# PART 1: Logistic Regression
+# ----------------------------
+from joblib import load as joblib_load
+
+# Optional: detect sklearn Pipeline type (for readability only)
+try:
+    from sklearn.pipeline import Pipeline as _SkPipeline  # type: ignore
+except Exception:
+    _SkPipeline = tuple()  # falsy fallback
+
+def run_logreg_monitor():
+    print("\n========== PART 1: Logistic Regression monitor ==========")
+    # Load model (you can keep multiple artifacts; we pick the first *.joblib)
+    logreg_dir = os.path.join(MODEL_BANK_DIR, "logreg")
+    joblib_files = sorted(glob.glob(os.path.join(logreg_dir, "*.joblib")))
+    if not joblib_files:
+        raise FileNotFoundError(f"No joblib model found in {logreg_dir}")
+    # Prefer a file that looks like a classifier, otherwise first one
+    model_path = None
+    for f in joblib_files:
+        if re.search(r"model|clf|logreg", os.path.basename(f), re.I):
+            model_path = f
+            break
+    if model_path is None:
+        model_path = joblib_files[0]
+
+    model = joblib_load(model_path)
+    # Try to get expected feature names if available (raw input schema at fit time)
+    expected_cols: Optional[List[str]] = None
+    if hasattr(model, "feature_names_in_"):
+        expected_cols = list(model.feature_names_in_)
+
+    # Load monthly
+    monthly = load_monthly_frames(DATA_DIR, START_DATE, END_DATE)
+    if not monthly:
+        raise FileNotFoundError(f"No gold_YYYY_MM_DD.csv found within {START_DATE}..{END_DATE} under {DATA_DIR}")
+
+    summary_rows = []
+    for d, df in monthly:
+        month_tag = d.strftime("%Y-%m-%d")
+        # Identify columns
+        label_col = find_label_col(df)
+        if label_col is None:
+            print(f"[LogReg][{month_tag}] WARNING: label column not found; skip")
+            continue
+        id_col = find_first(df, ID_COL_CANDIDATES)
+        snap_col = find_first(df, SNAPSHOT_COL_CANDIDATES)
+
+        y = df[label_col].astype(int).values
+
+        # Build X (keep DataFrame to preserve column names for ColumnTransformer/Pipeline)
+        drop_cols = set([c for c in [label_col, id_col, snap_col] if c is not None])
+        if expected_cols is not None:
+            # Align to training-time raw schema; add missing columns as NaN (let imputers/transformers handle them)
+            Xdf = df.drop(columns=[c for c in drop_cols if c in df.columns], errors="ignore")
+            for c in expected_cols:
+                if c not in Xdf.columns:
+                    Xdf[c] = np.nan
+            Xdf = Xdf[expected_cols].copy()
         else:
-            m["psi_vs_base"] = psi(p, base_prob)
-        metrics.append(m)
+            # No schema available: pass everything except obvious non-features
+            Xdf = df.drop(columns=[c for c in drop_cols if c in df.columns], errors="ignore").copy()
 
-    result = pd.DataFrame(metrics)
-    print("✅ 已计算各月监控指标：")
-    print(result)
-    return result
+        # Predict proba — prefer passing a DataFrame (pipelines expect column names)
+        try:
+            y_prob = model.predict_proba(Xdf)[:, 1]
+        except Exception:
+            # Fallbacks for atypical estimators
+            if hasattr(model, "decision_function"):
+                try:
+                    scores = model.decision_function(Xdf)
+                except Exception:
+                    scores = model.decision_function(Xdf.values)
+                y_prob = 1/(1+np.exp(-scores))
+            else:
+                try:
+                    y_prob = model.predict(Xdf).astype(float)
+                except Exception:
+                    y_prob = model.predict(Xdf.values).astype(float)
 
+        met = safe_metrics(y, y_prob, THRESHOLD)
+        met_row = {"model": "logreg", "month": month_tag, **met}
+        summary_rows.append(met_row)
 
-def load_model_and_scaler(model_dir: str):
-    # scaler_path = os.path.join(model_dir, "scaler.joblib")
-    scaler_path = _mb("scaler.joblib")
-    model_path = _mb("logreg_model.joblib")  # 按你的实际模型文件名
-    # model_path  = os.path.join(model_dir, "logreg_model.joblib")
-    scaler = joblib.load(scaler_path)
-    model  = joblib.load(model_path)
-    return scaler, model
-
-
-def plot_monitor_trends(mdf: pd.DataFrame, out_dir: str = OUT_DIR):
-    os.makedirs(out_dir, exist_ok=True)
-    for col in ["auc", "pr_auc", "pd_rate", "psi_vs_base"]:
-        plt.figure(figsize=(6,4))
-        plt.plot(mdf["month"], mdf[col], marker="o")
-        plt.title(f"{col.upper()} Trend")
-        plt.xlabel("Month")
-        plt.ylabel(col)
-        plt.xticks(rotation=45)
-        plt.grid(True, alpha=0.3)
-        plt.tight_layout()
-        plt.savefig(os.path.join(out_dir, f"{col}_trend.png"), dpi=150)
-        plt.close()
-    print(f"📈 趋势图已保存到 {out_dir}")
-
-def credit_history_to_months(text):
-    """
-    把 '19 Years and 9 Months' 转成总月份数（int）。
-    """
-    if pd.isna(text):
-        return np.nan
-
-    text = str(text)
-    # 匹配两个数字（例如 19 和 9）
-    match = re.findall(r'(\d+)', text)
-    if len(match) >= 2:
-        years = int(match[0])
-        months = int(match[1])
-    elif len(match) == 1:
-        years = int(match[0])
-        months = 0
-    else:
-        return np.nan
-
-    return years * 12 + months
-
-def drop_useless_columns_and_onehot_coding(df: pd.DataFrame) -> pd.DataFrame:
-    id_cols = ["Customer_ID", "Credit_History_Age", "Name", "SSN",
-               "snapshot_date_x", "snapshot_date_y", "label_def", "loan_id"]
-
-    cat_cols = [
-        c for c in df.columns
-        if df[c].dtype == "object" and c not in id_cols
-    ]
-
-    # 删除无关列
-    df = df.drop(columns=["Name", "SSN", "snapshot_date_x", "label_def", "loan_id"], errors="ignore")
-
-    # ✅ 保留 label 的 snapshot_date（_y）
-    if "snapshot_date_y" in df.columns:
-        df = df.rename(columns={"snapshot_date_y": "snapshot_date"})
-    else:
-        # 兜底：如果没有 snapshot_date_y，保留 x
-        if "snapshot_date_x" in df.columns:
-            df = df.rename(columns={"snapshot_date_x": "snapshot_date"})
-        else:
-            df["snapshot_date"] = np.nan
-
-    # One-hot 编码
-    df = pd.get_dummies(df, columns=cat_cols, drop_first=True)
-
-    return df
-
-
-
-
-
-# ---------- 主流程 ----------
-def main():
-    # Step 1. 加载模型
-    scaler, model = load_model_and_scaler(MODEL_BANK_DIR)
-    print("✅ 模型与Scaler加载完毕")
-
-    # Step 2. 合并特征与标签
-    merged_all_df, summary_df = merge_features_and_labels(FEATURE_DIR, LABEL_DIR)
-
-    # print('---------------------')
-    # print(merged_all_df.columns)
-
-    merged_all_df["Credit_History_Age_months"] = merged_all_df["Credit_History_Age"].apply(credit_history_to_months)
-    merged_all_df = merged_all_df.drop(columns=["Credit_History_Age"])
-
-    merged_all_df = drop_useless_columns_and_onehot_coding(merged_all_df)
-    # print('---------------------')
-    # print(merged_all_df.shape)
-
-    # Step 3. 模型推理
-    # ====== 和训练时列名对齐（关键补丁）======
-    # 1) 训练时的列顺序（scikit-learn 1.0+ 会带这个属性）
-    if not hasattr(scaler, "feature_names_in_"):
-        raise RuntimeError(
-            "当前 scaler 没有 feature_names_in_ 属性。建议在训练时用 DataFrame 拟合，"
-            "或把训练时的特征列保存为 feature_list.json 并在此读取。"
+        # Pretty print
+        print(f"[LogReg][{month_tag}] n={met['n']} pos={met['positives']} neg={met['negatives']} pred_mean={met['pred_mean']:.4f}")
+        print(
+            "    auc={auc:.4f} pr_auc={pr_auc:.4f} ks={ks:.4f} f1={f1:.4f} "
+            "prec={precision:.4f} rec={recall:.4f} acc={accuracy:.4f} "
+            "brier={brier:.4f} logloss={logloss:.4f}".format(**{k:(v if not isinstance(v,float) or not math.isnan(v) else float('nan')) for k,v in met.items()})
         )
 
-    expected_cols = list(scaler.feature_names_in_)
+    return pd.DataFrame(summary_rows)
 
-    # 2) 预测用的特征（先把不需要的剔掉）
-    # 你的代码原来是：feature_cols = [c for c in merged_all_df.columns if c not in ["Customer_ID", "label"]]
-    # 这里改为：以实际 one-hot 后的所有列为候选，然后按 expected 对齐
-    X = merged_all_df.drop(
-        columns=[c for c in ["Customer_ID", "label", "snapshot_date"] if c in merged_all_df.columns],
-        errors="ignore"
-    )
 
-    # 去掉重复列（有时 get_dummies 会生成重复名）
-    X = X.loc[:, ~X.columns.duplicated()]
+# ----------------------------
+# PART 2: CatBoost
+# ----------------------------
+try:
+    from catboost import CatBoostClassifier
+    _HAS_CB = True
+except Exception:
+    _HAS_CB = False
 
-    # 3) 缺失的训练列补 0；多余的推理列删除
-    missing = [c for c in expected_cols if c not in X.columns]
-    extra = [c for c in X.columns if c not in expected_cols]
 
-    if missing:
-        # 一次性创建所有缺失列并拼接
-        missing_df = pd.DataFrame(
-            {c: np.zeros(len(X), dtype=float) for c in missing},
-            index=X.index
+def run_catboost_monitor():
+    if not _HAS_CB:
+        print("\n========== PART 2: CatBoost monitor ==========")
+        print("CatBoost not installed; skipping CatBoost monitoring. Please install `catboost`.\n")
+        return pd.DataFrame([])
+
+    print("\n========== PART 2: CatBoost monitor ==========")
+    cb_dir = os.path.join(MODEL_BANK_DIR, "catboost")
+    cb_files = sorted(glob.glob(os.path.join(cb_dir, "*.cbm")))
+    if not cb_files:
+        raise FileNotFoundError(f"No CatBoost .cbm model found in {cb_dir}")
+
+    cbm_path = cb_files[0]
+    model = CatBoostClassifier()
+    model.load_model(cbm_path)
+
+    # Try to retrieve feature names from model if stored
+    expected_cols: Optional[List[str]] = None
+    try:
+        if hasattr(model, "feature_names_") and model.feature_names_:
+            expected_cols = list(model.feature_names_)
+    except Exception:
+        expected_cols = None
+
+    monthly = load_monthly_frames(DATA_DIR, START_DATE, END_DATE)
+    if not monthly:
+        raise FileNotFoundError(f"No gold_YYYY_MM_DD.csv found within {START_DATE}..{END_DATE} under {DATA_DIR}")
+
+    summary_rows = []
+    for d, df in monthly:
+        month_tag = d.strftime("%Y-%m-%d")
+        label_col = find_label_col(df)
+        if label_col is None:
+            print(f"[CatBoost][{month_tag}] WARNING: label column not found; skip")
+            continue
+        id_col = find_first(df, ID_COL_CANDIDATES)
+        snap_col = find_first(df, SNAPSHOT_COL_CANDIDATES)
+
+        y = df[label_col].astype(int).values
+
+        # CatBoost can handle categorical, but since we don't know training pool meta,
+        # we'll keep numeric-only unless the model exposes feature_names
+        drop_cols = set([c for c in [label_col, id_col, snap_col] if c is not None])
+        Xdf = df.drop(columns=[c for c in drop_cols if c in df.columns]).copy()
+
+        if expected_cols is not None:
+            # Align using model's feature names
+            missing = [c for c in expected_cols if c not in Xdf.columns]
+            for c in missing:
+                # fill numeric 0 or empty string; CatBoost will treat types accordingly
+                Xdf[c] = 0
+            # Ensure column order
+            Xdf = Xdf[expected_cols]
+        else:
+            # Fallback to numeric only with sorted order
+            Xdf = Xdf.select_dtypes(include=[np.number]).sort_index(axis=1)
+
+        # Predict probabilities
+        try:
+            y_prob = model.predict_proba(Xdf)[:, 1]
+        except Exception:
+            # some CatBoost versions require numpy array
+            y_prob = model.predict_proba(Xdf.values)[:, 1]
+
+        met = safe_metrics(y, y_prob, THRESHOLD)
+        met_row = {"model": "catboost", "month": month_tag, **met}
+        summary_rows.append(met_row)
+
+        print(f"[CatBoost][{month_tag}] n={met['n']} pos={met['positives']} neg={met['negatives']} pred_mean={met['pred_mean']:.4f}")
+        print(
+            "    auc={auc:.4f} pr_auc={pr_auc:.4f} ks={ks:.4f} f1={f1:.4f} "
+            "prec={precision:.4f} rec={recall:.4f} acc={accuracy:.4f} "
+            "brier={brier:.4f} logloss={logloss:.4f}".format(**{k:(v if not isinstance(v,float) or not math.isnan(v) else float('nan')) for k,v in met.items()})
         )
-        X = pd.concat([X, missing_df], axis=1)
 
-    if extra:
-        # 丢掉训练时没见过的列（避免 transform 报错）
-        X = X.drop(columns=extra)
-
-    # 4) 严格按训练时顺序重排；并确保数值类型
-    X = X[expected_cols].astype(float)
-
-    X = X.fillna(0)
-    Xs = scaler.transform(X)
-    prob = model.predict_proba(Xs)[:, 1]
-    merged_all_df["churn_prob"] = prob
-    merged_all_df["churn_pred"] = (prob > THRESHOLD).astype("int8")
-    print("✅ 已完成预测并写入 merged_all_df")
-
-    # Step 4. 计算监控指标
-    monitor_df = compute_monitor_metrics(merged_all_df)
-    monitor_df.to_csv(os.path.join(OUT_DIR, "monitor_summary.csv"), index=False)
-    print(f"✅ 监控结果已保存到 {OUT_DIR}/monitor_summary.csv")
-
-    # Step 5. 绘制趋势图
-    plot_monitor_trends(monitor_df, OUT_DIR)
+    return pd.DataFrame(summary_rows)
 
 
-
-
-
-
-
+# ----------------------------
+# Main
+# ----------------------------
 if __name__ == "__main__":
-    main()
+    print(f"DATA_DIR={DATA_DIR}")
+    print(f"MODEL_BANK_DIR={MODEL_BANK_DIR}")
+    print(f"Date range: {START_DATE} .. {END_DATE}\n")
+
+    logreg_df = run_logreg_monitor()
+    cb_df = run_catboost_monitor()
+
+    # # Show summary tables if any
+    # if not logreg_df.empty:
+    #     print("\n==== LogReg monthly summary ====")
+    #     print(logreg_df.to_string(index=False))
+    # if not cb_df.empty:
+    #     print("\n==== CatBoost monthly summary ====")
+    #     print(cb_df.to_string(index=False))
+    #
+    # # Combined summary
+    # all_df = pd.concat([logreg_df, cb_df], axis=0, ignore_index=True)
+    # if not all_df.empty:
+    #     out_path = os.path.join(DATA_DIR, "monitor_summary_2024-05_to_2024-09.csv")
+    #     all_df.to_csv(out_path, index=False)
+    #     print(f"\nSaved combined summary to: {out_path}")
+    # else:
+    #     print("\nNo metrics produced (no data or labels found in the date range).")

@@ -237,7 +237,7 @@ female,0.0,No,No,College,1.0,Employed,60–100k,1984-GPTEH
 male,0.0,No,No,College,1.0,Self-employed,60–100k,1251-KRREG
 female,0.0,No,No,College,1.0,Self-employed,60–100k,0621-JFHOL
 male,0.0,Yes,No,Bachelor,2.0,Self-employed,>150k,9903-LYSAB
-female,1.0,No,No,College,2.0,Self-employed,100–150k,0094-OIFMO
+female,1.0,No,No,College,2.0,Employed,100–150k,0094-OIFMO
 male,0.0,No,No,College,1.0,Employed,60–100k,9227-UAQFT
 female,0.0,No,No,College,2.0,Self-employed,100–150k,7301-ABVAD
 ,0.0,No,No,Bachelor,1.0,Self-employed,>150k,6614-FHDBO
@@ -2035,7 +2035,7 @@ female,0.0,Yes,No,Bachelor,3.0,Self-employed,>150k,3753-TSEMP
 male,0.0,No,No,College,1.0,Self-employed,60–100k,8305-VHZBZ
 male,0.0,Yes,Yes,College,4.0,Retired,100–150k,9720-JJJOR
 female,0.0,No,Yes,College,2.0,Self-employed,100–150k,8100-HZZLJ
-male,1.0,Yes,No,College,2.0,Self-employed,100–150k,8775-ERLNB
+male,1.0,Yes,No,College,2.0,Employed,100–150k,8775-ERLNB
 female,1.0,No,No,College,1.0,Retired,100–150k,8309-IEYJD
 female,0.0,Yes,Yes,,3.0,Self-employed,>150k,9172-JITSM
 male,0.0,No,No,Bachelor,1.0,Self-employed,>150k,6298-QDFNH
@@ -2391,7 +2391,7 @@ female,0.0,No,No,College,1.0,Self-employed,60–100k,9822-OAOVB
 male,0.0,Yes,Yes,College,2.0,Self-employed,100–150k,6161-ERDGD
 female,0.0,Yes,Yes,College,2.0,Employed,60–100k,1226-JZNKR
 male,,No,No,College,1.0,Self-employed,100–150k,7318-EIVKO
-male,0.0,No,No,Bachelor,1.0,Self-employed,>150k,3771-PZOBW
+male,0.0,No,No,Bachelor,1.0,Employed,>150k,3771-PZOBW
 female,0.0,Yes,No,Bachelor,3.0,Retired,>150k,5136-KCKGI
 male,0.0,No,No,Bachelor,1.0,Retired,>150k,8231-BSWXX
 female,,Yes,No,College,2.0,Retired,100–150k,6486-LHTMA
@@ -2892,7 +2892,7 @@ male,0.0,Yes,Yes,College,3.0,Employed,60–100k,9830-ECLEN
 female,1.0,Yes,Yes,College,2.0,Retired,100–150k,1732-VHUBQ
 female,0.0,No,No,Bachelor,1.0,Self-employed,>150k,0495-RVCBF
 male,0.0,No,No,College,1.0,Employed,60–100k,2668-TZSPS
-male,0.0,No,No,College,2.0,Self-employed,100–150k,7854-EDSSA
+male,0.0,No,No,College,2.0,Employed,100–150k,7854-EDSSA
 female,0.0,No,No,College,2.0,Retired,100–150k,8869-TORSS
 female,0.0,Yes,No,College,2.0,Self-employed,60–100k,7446-SFAOA
 male,0.0,No,No,,2.0,Self-employed,60–100k,9522-ZSINC
@@ -3202,7 +3202,7 @@ female,0.0,No,No,College,2.0,Self-employed,60–100k,3696-DFHHB
 male,0.0,Yes,No,Bachelor,2.0,Retired,>150k,0895-DQHEW
 female,0.0,No,No,College,1.0,Self-employed,100–150k,4717-GHADL
 male,0.0,No,No,College,1.0,,60–100k,5501-TVMGM
-female,0.0,Yes,No,College,3.0,Self-employed,100–150k,5879-HMFFH
+female,0.0,Yes,No,College,3.0,Self-employed,>150k,5879-HMFFH
 male,0.0,No,Yes,College,2.0,Self-employed,60–100k,6772-WFQRD
 female,0.0,Yes,Yes,Bachelor,2.0,Retired,>150k,3810-DVDQQ
 female,0.0,No,No,College,1.0,Employed,60–100k,6972-SNKKW
@@ -3712,7 +3712,7 @@ male,0.0,No,No,College,1.0,Self-employed,60–100k,2103-ZRXFN
 male,0.0,Yes,Yes,College,3.0,Employed,60–100k,3724-BSCVH
 female,0.0,Yes,Yes,College,2.0,Retired,100–150k,4877-TSOFF
 male,0.0,No,No,College,2.0,Self-employed,100–150k,9209-NWPGU
-female,1.0,Yes,No,College,2.0,Retired,100–150k,6961-VCPMC
+male,1.0,Yes,No,College,2.0,Retired,100–150k,6961-VCPMC
 male,0.0,Yes,Yes,College,3.0,Self-employed,100–150k,7306-YDSOI
 male,1.0,No,No,College,1.0,Retired,100–150k,5288-AHOUP
 female,0.0,Yes,No,Bachelor,3.0,Retired,>150k,6688-UZPWD
@@ -4564,7 +4564,7 @@ female,0.0,Yes,Yes,College,2.0,Self-employed,60–100k,9415-TPKRV
 female,0.0,Yes,Yes,Bachelor,4.0,Retired,>150k,5322-TEUJK
 female,0.0,No,No,Bachelor,1.0,Retired,>150k,4547-KQRTM
 male,0.0,No,No,College,2.0,Employed,60–100k,4877-EVATK
-female,0.0,,No,College,2.0,Self-employed,100–150k,1866-DIOQZ
+female,0.0,,No,College,2.0,Employed,100–150k,1866-DIOQZ
 male,0.0,Yes,No,Bachelor,2.0,Retired,>150k,8375-KVTHK
 male,0.0,No,No,Bachelor,1.0,Retired,>150k,2697-NQBPF
 male,0.0,No,No,Bachelor,1.0,Self-employed,>150k,3709-OIJEA

@@ -1,61 +1,36 @@
-# ===============================
-# Dockerfile for MLE Assignment
-# ===============================
-
+#FROM apache/airflow:2.10.2-python3.10
+#
+#USER root
+#WORKDIR /opt/airflow
+#
+## 可选：装系统工具
+#RUN apt-get update && apt-get install -y --no-install-recommends \
+#    build-essential git && rm -rf /var/lib/apt/lists/*
+#
+#USER airflow
+#COPY requirements.txt .
+#RUN pip install --no-cache-dir -r requirements.txt
+#
+## 把项目整体拷进去（compose 里也会用挂载覆盖，便于本地开发）
+#COPY . /opt/airflow
 FROM apache/airflow:2.10.2-python3.10
 
-# 设置时区
-ENV TZ=Asia/Singapore
+# （可选）如果你需要安装系统包再开启 root；如果不需要，可以删掉这段
 USER root
-
-# 安装系统依赖（包含 Java 以兼容 Spark）
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends openjdk-17-jdk-headless procps bash && \
-    rm -rf /var/lib/apt/lists/*
-
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-ENV PATH="$JAVA_HOME/bin:$PATH"
-
-
-# ...前面 apt 装 Java 的部分保持 root 身份
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-ENV PATH="$JAVA_HOME/bin:/home/airflow/.local/bin:$PATH"
-
-# 先复制 requirements
-COPY requirements.txt /requirements.txt
-
-USER airflow
-RUN pip install --no-cache-dir -r /requirements.txt && \
-    pip install --no-cache-dir pyspark==3.5.2 "pyarrow>=14,<19"
-# 如需 Delta Lake：
-# RUN pip install --no-cache-dir delta-spark==3.2.0
-
-
-# 用 root 拷贝文件并直接设定属主
-USER root
-RUN mkdir -p /opt/airflow/scripts
-COPY --chown=airflow:root scripts/ /opt/airflow/scripts/
-COPY --chown=airflow:root dags/ /opt/airflow/dags/
-
-# 仅为新建目录设置权限（避免 chown 整个 /opt/airflow 触发 OPNOTPERM）
-RUN mkdir -p /opt/airflow/{logs,datamart,model_bank} \
-    && chown -R airflow:root /opt/airflow/{logs,datamart,model_bank}
-
-# 最终运行用 airflow 用户
-USER airflow
 WORKDIR /opt/airflow
+# RUN apt-get update && apt-get install -y --no-install-recommends build-essential git && rm -rf /var/lib/apt/lists/*
 
-
-# 运行期环境（常见小坑规避）
-ENV PYSPARK_PYTHON=python
-ENV SPARK_LOCAL_IP=127.0.0.1
-ENV PYARROW_IGNORE_TIMEZONE=1
-
-# 将脚本和 DAG 拷贝进容器
-RUN mkdir -p /opt/airflow/scripts
-COPY scripts/ /opt/airflow/scripts/
-COPY dags/ /opt/dags/
-
-
+# 重要：切回 airflow 用户，再执行 pip
 USER airflow
-WORKDIR /opt/airflow
+
+# 先只拷 requirements.txt，利用缓存
+COPY requirements.txt /opt/airflow/requirements.txt
+RUN pip install --no-cache-dir -r /opt/airflow/requirements.txt
+
+# 拷贝项目代码（建议带 chown）
+COPY --chown=airflow:0 dags/     /opt/airflow/dags/
+COPY --chown=airflow:0 scripts/  /opt/airflow/scripts/
+COPY --chown=airflow:0 utils/    /opt/airflow/utils/
+COPY --chown=airflow:0 plugins/  /opt/airflow/plugins/
+# 如果你还需要其它文件，再单独 COPY（避免把 logs/data 打包进去）
+# COPY --chown=airflow:0 docker-compose.yaml /opt/airflow/

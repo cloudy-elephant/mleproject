@@ -5,4 +5,5 @@ pyarrow
 joblib
 tqdm
 matplotlib
-pyspark
+catboost
+

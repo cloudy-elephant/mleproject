@@ -1,0 +1,87 @@
+[2025-11-05T09:55:45.128+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-11-05T09:55:45.142+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: e2e_pipeline.gold_process manual__2025-11-05T09:55:30.974057+00:00 [queued]>
+[2025-11-05T09:55:45.154+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: e2e_pipeline.gold_process manual__2025-11-05T09:55:30.974057+00:00 [queued]>
+[2025-11-05T09:55:45.155+0000] {taskinstance.py:2865} INFO - Starting attempt 1 of 1
+[2025-11-05T09:55:45.199+0000] {taskinstance.py:2888} INFO - Executing <Task(BashOperator): gold_process> on 2025-11-05 09:55:30.974057+00:00
+[2025-11-05T09:55:45.204+0000] {standard_task_runner.py:72} INFO - Started process 121 to run task
+[2025-11-05T09:55:45.214+0000] {standard_task_runner.py:104} INFO - Running: ['airflow', 'tasks', 'run', 'e2e_pipeline', 'gold_process', 'manual__2025-11-05T09:55:30.974057+00:00', '--job-id', '49', '--raw', '--subdir', 'DAGS_FOLDER/e2e_pipeline_dag.py', '--cfg-path', '/tmp/tmp3dk5gvcu']
+[2025-11-05T09:55:45.218+0000] {standard_task_runner.py:105} INFO - Job 49: Subtask gold_process
+[2025-11-05T09:55:45.331+0000] {task_command.py:467} INFO - Running <TaskInstance: e2e_pipeline.gold_process manual__2025-11-05T09:55:30.974057+00:00 [running]> on host 4fe7252a36f5
+[2025-11-05T09:55:45.437+0000] {taskinstance.py:3131} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='e2e_pipeline' AIRFLOW_CTX_TASK_ID='gold_process' AIRFLOW_CTX_EXECUTION_DATE='2025-11-05T09:55:30.974057+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-11-05T09:55:30.974057+00:00'
+[2025-11-05T09:55:45.438+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2025-11-05T09:55:45.449+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2025-11-05T09:55:45.451+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'python /opt/airflow/scripts/gold_process.py']
+[2025-11-05T09:55:45.458+0000] {subprocess.py:86} INFO - Output:
+[2025-11-05T09:55:52.284+0000] {subprocess.py:93} INFO - [gold] 加载 Silver 特征表...
+[2025-11-05T09:55:52.286+0000] {subprocess.py:93} INFO - [gold] ✅ Loaded contract (7042 rows)
+[2025-11-05T09:55:52.287+0000] {subprocess.py:93} INFO - [gold] ✅ Loaded service (7051 rows)
+[2025-11-05T09:55:52.288+0000] {subprocess.py:93} INFO - [gold] ✅ Loaded demographic (7064 rows)
+[2025-11-05T09:55:52.289+0000] {subprocess.py:93} INFO - [gold] ✅ Loaded financial (7064 rows)
+[2025-11-05T09:55:52.290+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.291+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2023_02_01.csv
+[2025-11-05T09:55:52.292+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2023_02_01.csv（233 行）
+[2025-11-05T09:55:52.292+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.293+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2023_03_01.csv
+[2025-11-05T09:55:52.294+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2023_03_01.csv（224 行）
+[2025-11-05T09:55:52.295+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.296+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2023_04_01.csv
+[2025-11-05T09:55:52.297+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2023_04_01.csv（228 行）
+[2025-11-05T09:55:52.298+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.298+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2023_05_01.csv
+[2025-11-05T09:55:52.299+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2023_05_01.csv（216 行）
+[2025-11-05T09:55:52.300+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.300+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2023_06_01.csv
+[2025-11-05T09:55:52.301+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2023_06_01.csv（214 行）
+[2025-11-05T09:55:52.302+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.302+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2023_07_01.csv
+[2025-11-05T09:55:52.303+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2023_07_01.csv（219 行）
+[2025-11-05T09:55:52.305+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.305+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2023_08_01.csv
+[2025-11-05T09:55:52.306+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2023_08_01.csv（239 行）
+[2025-11-05T09:55:52.307+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.308+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2023_09_01.csv
+[2025-11-05T09:55:52.309+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2023_09_01.csv（225 行）
+[2025-11-05T09:55:52.310+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.311+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2023_10_01.csv
+[2025-11-05T09:55:52.312+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2023_10_01.csv（215 行）
+[2025-11-05T09:55:52.313+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.313+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2023_11_01.csv
+[2025-11-05T09:55:52.314+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2023_11_01.csv（213 行）
+[2025-11-05T09:55:52.315+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.315+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2023_12_01.csv
+[2025-11-05T09:55:52.316+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2023_12_01.csv（219 行）
+[2025-11-05T09:55:52.317+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.318+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2024_01_01.csv
+[2025-11-05T09:55:52.318+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2024_01_01.csv（232 行）
+[2025-11-05T09:55:52.319+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.320+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2024_02_01.csv
+[2025-11-05T09:55:52.321+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2024_02_01.csv（217 行）
+[2025-11-05T09:55:52.321+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.322+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2024_03_01.csv
+[2025-11-05T09:55:52.323+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2024_03_01.csv（240 行）
+[2025-11-05T09:55:52.323+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.324+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2024_04_01.csv
+[2025-11-05T09:55:52.325+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2024_04_01.csv（230 行）
+[2025-11-05T09:55:52.326+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.327+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2024_05_01.csv
+[2025-11-05T09:55:52.328+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2024_05_01.csv（210 行）
+[2025-11-05T09:55:52.329+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.330+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2024_06_01.csv
+[2025-11-05T09:55:52.331+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2024_06_01.csv（221 行）
+[2025-11-05T09:55:52.332+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.333+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2024_07_01.csv
+[2025-11-05T09:55:52.334+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2024_07_01.csv（231 行）
+[2025-11-05T09:55:52.335+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.336+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2024_08_01.csv
+[2025-11-05T09:55:52.337+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2024_08_01.csv（221 行）
+[2025-11-05T09:55:52.338+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.339+0000] {subprocess.py:93} INFO - 🟡 处理标签文件：lable_2024_09_01.csv
+[2025-11-05T09:55:52.340+0000] {subprocess.py:93} INFO - [gold] ✅ 输出文件：/opt/airflow/datamart/gold/gold_2024_09_01.csv（216 行）
+[2025-11-05T09:55:52.340+0000] {subprocess.py:93} INFO - [gold]
+[2025-11-05T09:55:52.341+0000] {subprocess.py:93} INFO - 🎉 Gold 层特征合并完成！
+[2025-11-05T09:55:52.341+0000] {subprocess.py:97} INFO - Command exited with return code 0
+[2025-11-05T09:55:52.387+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2025-11-05T09:55:52.388+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=e2e_pipeline, task_id=gold_process, run_id=manual__2025-11-05T09:55:30.974057+00:00, execution_date=20251105T095530, start_date=20251105T095545, end_date=20251105T095552
+[2025-11-05T09:55:52.427+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-11-05T09:55:52.456+0000] {taskinstance.py:3900} INFO - 2 downstream tasks scheduled from follow-on schedule check
+[2025-11-05T09:55:52.468+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

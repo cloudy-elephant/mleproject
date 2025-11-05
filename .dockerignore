@@ -1,0 +1,21 @@
+# 忽略大文件夹 & 动态产物
+logs/
+datamart/
+model_bank/
+data/
+
+# 常见本地环境
+.venv/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# VCS / IDE
+.git/
+.gitignore
+.idea/
+.vscode/
+.DS_Store

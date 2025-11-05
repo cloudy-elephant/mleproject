@@ -1,0 +1,60 @@
+[2025-11-05T09:55:55.048+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-11-05T09:55:55.065+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: e2e_pipeline.logreg_train manual__2025-11-05T09:55:30.974057+00:00 [queued]>
+[2025-11-05T09:55:55.077+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: e2e_pipeline.logreg_train manual__2025-11-05T09:55:30.974057+00:00 [queued]>
+[2025-11-05T09:55:55.080+0000] {taskinstance.py:2865} INFO - Starting attempt 1 of 1
+[2025-11-05T09:55:55.114+0000] {taskinstance.py:2888} INFO - Executing <Task(BashOperator): logreg_train> on 2025-11-05 09:55:30.974057+00:00
+[2025-11-05T09:55:55.120+0000] {standard_task_runner.py:72} INFO - Started process 156 to run task
+[2025-11-05T09:55:55.127+0000] {standard_task_runner.py:104} INFO - Running: ['airflow', 'tasks', 'run', 'e2e_pipeline', 'logreg_train', 'manual__2025-11-05T09:55:30.974057+00:00', '--job-id', '50', '--raw', '--subdir', 'DAGS_FOLDER/e2e_pipeline_dag.py', '--cfg-path', '/tmp/tmpwyvhw0hi']
+[2025-11-05T09:55:55.130+0000] {standard_task_runner.py:105} INFO - Job 50: Subtask logreg_train
+[2025-11-05T09:55:55.223+0000] {task_command.py:467} INFO - Running <TaskInstance: e2e_pipeline.logreg_train manual__2025-11-05T09:55:30.974057+00:00 [running]> on host 4fe7252a36f5
+[2025-11-05T09:55:55.320+0000] {taskinstance.py:3131} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='e2e_pipeline' AIRFLOW_CTX_TASK_ID='logreg_train' AIRFLOW_CTX_EXECUTION_DATE='2025-11-05T09:55:30.974057+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-11-05T09:55:30.974057+00:00'
+[2025-11-05T09:55:55.321+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2025-11-05T09:55:55.332+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2025-11-05T09:55:55.334+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'python /opt/airflow/scripts/logreg_train.py']
+[2025-11-05T09:55:55.340+0000] {subprocess.py:86} INFO - Output:
+[2025-11-05T09:56:00.460+0000] {subprocess.py:93} INFO - [logreg] ROOT=/opt/airflow
+[2025-11-05T09:56:00.461+0000] {subprocess.py:93} INFO - [logreg] GOLD_DIR=/opt/airflow/datamart/gold
+[2025-11-05T09:56:00.462+0000] {subprocess.py:93} INFO - [logreg] OUT_DIR=/opt/airflow/model_bank/logreg
+[2025-11-05T09:56:00.463+0000] {subprocess.py:93} INFO - ✅ 模型已保存到：/opt/airflow/model_bank/logreg/logreg_model.joblib
+[2025-11-05T09:56:00.464+0000] {subprocess.py:93} INFO - 
+[2025-11-05T09:56:00.465+0000] {subprocess.py:93} INFO - ==================================================================
+[2025-11-05T09:56:00.466+0000] {subprocess.py:93} INFO - TRAIN Set 评估:
+[2025-11-05T09:56:00.467+0000] {subprocess.py:93} INFO -               precision    recall  f1-score   support
+[2025-11-05T09:56:00.468+0000] {subprocess.py:93} INFO - 
+[2025-11-05T09:56:00.470+0000] {subprocess.py:93} INFO -     No Churn       0.91      0.72      0.80      1152
+[2025-11-05T09:56:00.471+0000] {subprocess.py:93} INFO -        Churn       0.51      0.81      0.63       421
+[2025-11-05T09:56:00.472+0000] {subprocess.py:93} INFO - 
+[2025-11-05T09:56:00.473+0000] {subprocess.py:93} INFO -     accuracy                           0.74      1573
+[2025-11-05T09:56:00.474+0000] {subprocess.py:93} INFO -    macro avg       0.71      0.76      0.72      1573
+[2025-11-05T09:56:00.475+0000] {subprocess.py:93} INFO - weighted avg       0.81      0.74      0.76      1573
+[2025-11-05T09:56:00.476+0000] {subprocess.py:93} INFO - 
+[2025-11-05T09:56:00.477+0000] {subprocess.py:93} INFO - Accuracy: 0.7438
+[2025-11-05T09:56:00.478+0000] {subprocess.py:93} INFO - AUC-ROC: 0.843
+[2025-11-05T09:56:00.479+0000] {subprocess.py:93} INFO - 混淆矩阵: [[829, 323], [80, 341]]
+[2025-11-05T09:56:00.480+0000] {subprocess.py:93} INFO - TN: 829  FP: 323  FN: 80  TP: 341
+[2025-11-05T09:56:00.481+0000] {subprocess.py:93} INFO - [logreg] ROOT=/opt/airflow
+[2025-11-05T09:56:00.482+0000] {subprocess.py:93} INFO - [logreg] GOLD_DIR=/opt/airflow/datamart/gold
+[2025-11-05T09:56:00.484+0000] {subprocess.py:93} INFO - [logreg] OUT_DIR=/opt/airflow/model_bank/logreg
+[2025-11-05T09:56:00.485+0000] {subprocess.py:93} INFO - ✅ 模型已保存到：/opt/airflow/model_bank/logreg/logreg_model.joblib
+[2025-11-05T09:56:00.486+0000] {subprocess.py:93} INFO - 
+[2025-11-05T09:56:00.486+0000] {subprocess.py:93} INFO - ==================================================================
+[2025-11-05T09:56:00.487+0000] {subprocess.py:93} INFO - TRAIN Set 评估:
+[2025-11-05T09:56:00.488+0000] {subprocess.py:93} INFO -               precision    recall  f1-score   support
+[2025-11-05T09:56:00.489+0000] {subprocess.py:93} INFO - 
+[2025-11-05T09:56:00.490+0000] {subprocess.py:93} INFO -     No Churn       0.91      0.72      0.80      1152
+[2025-11-05T09:56:00.491+0000] {subprocess.py:93} INFO -        Churn       0.51      0.81      0.63       421
+[2025-11-05T09:56:00.492+0000] {subprocess.py:93} INFO - 
+[2025-11-05T09:56:00.492+0000] {subprocess.py:93} INFO -     accuracy                           0.74      1573
+[2025-11-05T09:56:00.493+0000] {subprocess.py:93} INFO -    macro avg       0.71      0.76      0.72      1573
+[2025-11-05T09:56:00.494+0000] {subprocess.py:93} INFO - weighted avg       0.81      0.74      0.76      1573
+[2025-11-05T09:56:00.495+0000] {subprocess.py:93} INFO - 
+[2025-11-05T09:56:00.496+0000] {subprocess.py:93} INFO - Accuracy: 0.7438
+[2025-11-05T09:56:00.497+0000] {subprocess.py:93} INFO - AUC-ROC: 0.843
+[2025-11-05T09:56:00.498+0000] {subprocess.py:93} INFO - 混淆矩阵: [[829, 323], [80, 341]]
+[2025-11-05T09:56:00.499+0000] {subprocess.py:93} INFO - TN: 829  FP: 323  FN: 80  TP: 341
+[2025-11-05T09:56:00.566+0000] {subprocess.py:97} INFO - Command exited with return code 0
+[2025-11-05T09:56:00.610+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2025-11-05T09:56:00.611+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=e2e_pipeline, task_id=logreg_train, run_id=manual__2025-11-05T09:55:30.974057+00:00, execution_date=20251105T095530, start_date=20251105T095555, end_date=20251105T095600
+[2025-11-05T09:56:00.669+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-11-05T09:56:00.694+0000] {taskinstance.py:3900} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-11-05T09:56:00.697+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

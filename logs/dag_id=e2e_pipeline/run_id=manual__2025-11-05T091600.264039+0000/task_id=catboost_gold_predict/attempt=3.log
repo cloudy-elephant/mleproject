@@ -1,0 +1,88 @@
+[2025-11-05T09:37:02.466+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-11-05T09:37:02.486+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: e2e_pipeline.catboost_gold_predict manual__2025-11-05T09:16:00.264039+00:00 [queued]>
+[2025-11-05T09:37:02.502+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: e2e_pipeline.catboost_gold_predict manual__2025-11-05T09:16:00.264039+00:00 [queued]>
+[2025-11-05T09:37:02.503+0000] {taskinstance.py:2865} INFO - Starting attempt 3 of 3
+[2025-11-05T09:37:02.534+0000] {taskinstance.py:2888} INFO - Executing <Task(BashOperator): catboost_gold_predict> on 2025-11-05 09:16:00.264039+00:00
+[2025-11-05T09:37:02.539+0000] {standard_task_runner.py:72} INFO - Started process 686 to run task
+[2025-11-05T09:37:02.543+0000] {standard_task_runner.py:104} INFO - Running: ['airflow', 'tasks', 'run', 'e2e_pipeline', 'catboost_gold_predict', 'manual__2025-11-05T09:16:00.264039+00:00', '--job-id', '42', '--raw', '--subdir', 'DAGS_FOLDER/e2e_pipeline_dag.py', '--cfg-path', '/tmp/tmp5g43gj9l']
+[2025-11-05T09:37:02.546+0000] {standard_task_runner.py:105} INFO - Job 42: Subtask catboost_gold_predict
+[2025-11-05T09:37:02.653+0000] {task_command.py:467} INFO - Running <TaskInstance: e2e_pipeline.catboost_gold_predict manual__2025-11-05T09:16:00.264039+00:00 [running]> on host 9d186853eb29
+[2025-11-05T09:37:02.745+0000] {taskinstance.py:3131} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='e2e_pipeline' AIRFLOW_CTX_TASK_ID='catboost_gold_predict' AIRFLOW_CTX_EXECUTION_DATE='2025-11-05T09:16:00.264039+00:00' AIRFLOW_CTX_TRY_NUMBER='3' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-11-05T09:16:00.264039+00:00'
+[2025-11-05T09:37:02.746+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2025-11-05T09:37:02.758+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2025-11-05T09:37:02.761+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'python /opt/airflow/scripts/catboost_gold_predict.py']
+[2025-11-05T09:37:02.769+0000] {subprocess.py:86} INFO - Output:
+[2025-11-05T09:37:03.596+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,596 [INFO] ============================================================
+[2025-11-05T09:37:03.597+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,596 [INFO] CatBoost Gold Price Prediction - 开始预测
+[2025-11-05T09:37:03.598+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,596 [INFO] ============================================================
+[2025-11-05T09:37:03.599+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,596 [INFO] [auto] ROOT         = /opt/airflow
+[2025-11-05T09:37:03.600+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,596 [INFO] [auto] MODEL_PATH   = /opt/airflow/model_bank/catboost/catboost_gold_model.cbm
+[2025-11-05T09:37:03.601+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,596 [INFO] [auto] DATA_PATH    = /opt/airflow/datamart/gold/gold_2024_09_01.csv
+[2025-11-05T09:37:03.602+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,596 [INFO] [auto] OUTPUT_PATH  = /opt/airflow/model_bank/predictions/predictions_20251105_093703.csv
+[2025-11-05T09:37:03.602+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,596 [INFO] 加载模型: /opt/airflow/model_bank/catboost/catboost_gold_model.cbm
+[2025-11-05T09:37:03.627+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,626 [INFO] ✓ 模型加载成功
+[2025-11-05T09:37:03.628+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,627 [INFO] 加载数据: /opt/airflow/datamart/gold/gold_2024_09_01.csv
+[2025-11-05T09:37:03.635+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,634 [INFO] ✓ 数据加载成功: 216 条 × 35 列
+[2025-11-05T09:37:03.636+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,634 [INFO] 预处理数据...
+[2025-11-05T09:37:03.637+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,635 [INFO]   移除ID列: customerID
+[2025-11-05T09:37:03.639+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,638 [INFO]   提取日期特征: snapdate
+[2025-11-05T09:37:03.645+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,645 [INFO] ✓ 数据预处理完成
+[2025-11-05T09:37:03.646+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,645 [INFO] 开始预测...
+[2025-11-05T09:37:03.647+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,646 [INFO] 检测到类别列 28 个: ['Churn', 'Contract', 'PaperlessBilling', 'PaymentMethod', 'AutoRenewal', 'BillingCycle', 'DiscountApplied', 'LoyaltyProgramMember', 'PhoneService', 'MultipleLines', 'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies', 'SmartHomePackage', 'GamingBundle', 'InternationalCallingPlan', 'CloudStoragePlan', 'gender', 'Partner', 'Dependents', 'EducationLevel', 'EmploymentStatus', 'AnnualIncomeBracket', 'CustomerSatisfactionScore']
+[2025-11-05T09:37:03.652+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,652 [INFO] ✓ 预测完成: 216 条记录
+[2025-11-05T09:37:03.653+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,652 [INFO] 类别分布: 0=126, 1=90
+[2025-11-05T09:37:03.654+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,652 [INFO] 平均预测概率: 0.4125
+[2025-11-05T09:37:03.658+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,658 [INFO] ✓ 预测结果已保存: /opt/airflow/model_bank/predictions/predictions_20251105_093703.csv
+[2025-11-05T09:37:03.659+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,658 [INFO]
+[2025-11-05T09:37:03.660+0000] {subprocess.py:93} INFO - ============================================================
+[2025-11-05T09:37:03.661+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,658 [INFO] ✅ 预测流程完成！
+[2025-11-05T09:37:03.662+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,658 [INFO] ============================================================
+[2025-11-05T09:37:03.663+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,658 [INFO]
+[2025-11-05T09:37:03.664+0000] {subprocess.py:93} INFO - 预测结果示例（前5行）:
+[2025-11-05T09:37:03.665+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,663 [INFO]
+[2025-11-05T09:37:03.666+0000] {subprocess.py:93} INFO -    prediction  probability
+[2025-11-05T09:37:03.667+0000] {subprocess.py:93} INFO - 0           1     0.853207
+[2025-11-05T09:37:03.668+0000] {subprocess.py:93} INFO - 1           1     0.680816
+[2025-11-05T09:37:03.670+0000] {subprocess.py:93} INFO - 2           0     0.054123
+[2025-11-05T09:37:03.671+0000] {subprocess.py:93} INFO - 3           0     0.414024
+[2025-11-05T09:37:03.672+0000] {subprocess.py:93} INFO - 4           1     0.757927
+[2025-11-05T09:37:03.700+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,700 [INFO] ============================================================
+[2025-11-05T09:37:03.701+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,700 [INFO] CatBoost Gold Price Prediction - 开始预测
+[2025-11-05T09:37:03.702+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,700 [INFO] ============================================================
+[2025-11-05T09:37:03.703+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,700 [INFO] [auto] ROOT         = /opt/airflow
+[2025-11-05T09:37:03.704+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,700 [INFO] [auto] MODEL_PATH   = /opt/airflow/model_bank/catboost/catboost_gold_model.cbm
+[2025-11-05T09:37:03.705+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,700 [INFO] [auto] DATA_PATH    = /opt/airflow/datamart/gold/gold_2024_09_01.csv
+[2025-11-05T09:37:03.707+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,700 [INFO] [auto] OUTPUT_PATH  = /opt/airflow/model_bank/predictions/predictions_20251105_093703.csv
+[2025-11-05T09:37:03.708+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,700 [INFO] 加载模型: /opt/airflow/model_bank/catboost/catboost_gold_model.cbm
+[2025-11-05T09:37:03.717+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,717 [INFO] ✓ 模型加载成功
+[2025-11-05T09:37:03.718+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,717 [INFO] 加载数据: /opt/airflow/datamart/gold/gold_2024_09_01.csv
+[2025-11-05T09:37:03.725+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,725 [INFO] ✓ 数据加载成功: 216 条 × 35 列
+[2025-11-05T09:37:03.726+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,725 [INFO] 预处理数据...
+[2025-11-05T09:37:03.727+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,725 [INFO]   移除ID列: customerID
+[2025-11-05T09:37:03.728+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,728 [INFO]   提取日期特征: snapdate
+[2025-11-05T09:37:03.734+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,734 [INFO] ✓ 数据预处理完成
+[2025-11-05T09:37:03.736+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,734 [INFO] 开始预测...
+[2025-11-05T09:37:03.737+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,736 [INFO] 检测到类别列 28 个: ['Churn', 'Contract', 'PaperlessBilling', 'PaymentMethod', 'AutoRenewal', 'BillingCycle', 'DiscountApplied', 'LoyaltyProgramMember', 'PhoneService', 'MultipleLines', 'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies', 'SmartHomePackage', 'GamingBundle', 'InternationalCallingPlan', 'CloudStoragePlan', 'gender', 'Partner', 'Dependents', 'EducationLevel', 'EmploymentStatus', 'AnnualIncomeBracket', 'CustomerSatisfactionScore']
+[2025-11-05T09:37:03.739+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,739 [INFO] ✓ 预测完成: 216 条记录
+[2025-11-05T09:37:03.741+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,739 [INFO] 类别分布: 0=126, 1=90
+[2025-11-05T09:37:03.742+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,739 [INFO] 平均预测概率: 0.4125
+[2025-11-05T09:37:03.746+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,746 [INFO] ✓ 预测结果已保存: /opt/airflow/model_bank/predictions/predictions_20251105_093703.csv
+[2025-11-05T09:37:03.747+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,746 [INFO]
+[2025-11-05T09:37:03.748+0000] {subprocess.py:93} INFO - ============================================================
+[2025-11-05T09:37:03.750+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,746 [INFO] ✅ 预测流程完成！
+[2025-11-05T09:37:03.751+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,746 [INFO] ============================================================
+[2025-11-05T09:37:03.752+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,746 [INFO]
+[2025-11-05T09:37:03.752+0000] {subprocess.py:93} INFO - 预测结果示例（前5行）:
+[2025-11-05T09:37:03.753+0000] {subprocess.py:93} INFO - 2025-11-05 09:37:03,749 [INFO]
+[2025-11-05T09:37:03.754+0000] {subprocess.py:93} INFO -    prediction  probability
+[2025-11-05T09:37:03.755+0000] {subprocess.py:93} INFO - 0           1     0.853207
+[2025-11-05T09:37:03.755+0000] {subprocess.py:93} INFO - 1           1     0.680816
+[2025-11-05T09:37:03.756+0000] {subprocess.py:93} INFO - 2           0     0.054123
+[2025-11-05T09:37:03.756+0000] {subprocess.py:93} INFO - 3           0     0.414024
+[2025-11-05T09:37:03.757+0000] {subprocess.py:93} INFO - 4           1     0.757927
+[2025-11-05T09:37:03.807+0000] {subprocess.py:97} INFO - Command exited with return code 0
+[2025-11-05T09:37:03.859+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2025-11-05T09:37:03.861+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=e2e_pipeline, task_id=catboost_gold_predict, run_id=manual__2025-11-05T09:16:00.264039+00:00, execution_date=20251105T091600, start_date=20251105T093702, end_date=20251105T093703
+[2025-11-05T09:37:03.926+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-11-05T09:37:03.958+0000] {taskinstance.py:3900} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2025-11-05T09:37:03.975+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

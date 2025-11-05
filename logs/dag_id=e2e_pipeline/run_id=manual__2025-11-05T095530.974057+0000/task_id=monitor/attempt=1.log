@@ -1,0 +1,48 @@
+[2025-11-05T09:56:16.454+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-11-05T09:56:16.472+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: e2e_pipeline.monitor manual__2025-11-05T09:55:30.974057+00:00 [queued]>
+[2025-11-05T09:56:16.488+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: e2e_pipeline.monitor manual__2025-11-05T09:55:30.974057+00:00 [queued]>
+[2025-11-05T09:56:16.490+0000] {taskinstance.py:2865} INFO - Starting attempt 1 of 1
+[2025-11-05T09:56:16.523+0000] {taskinstance.py:2888} INFO - Executing <Task(BashOperator): monitor> on 2025-11-05 09:55:30.974057+00:00
+[2025-11-05T09:56:16.531+0000] {standard_task_runner.py:72} INFO - Started process 392 to run task
+[2025-11-05T09:56:16.537+0000] {standard_task_runner.py:104} INFO - Running: ['airflow', 'tasks', 'run', 'e2e_pipeline', 'monitor', 'manual__2025-11-05T09:55:30.974057+00:00', '--job-id', '53', '--raw', '--subdir', 'DAGS_FOLDER/e2e_pipeline_dag.py', '--cfg-path', '/tmp/tmp6ywhy664']
+[2025-11-05T09:56:16.543+0000] {standard_task_runner.py:105} INFO - Job 53: Subtask monitor
+[2025-11-05T09:56:16.620+0000] {task_command.py:467} INFO - Running <TaskInstance: e2e_pipeline.monitor manual__2025-11-05T09:55:30.974057+00:00 [running]> on host 4fe7252a36f5
+[2025-11-05T09:56:16.722+0000] {taskinstance.py:3131} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='e2e_pipeline' AIRFLOW_CTX_TASK_ID='monitor' AIRFLOW_CTX_EXECUTION_DATE='2025-11-05T09:55:30.974057+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-11-05T09:55:30.974057+00:00'
+[2025-11-05T09:56:16.724+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2025-11-05T09:56:16.735+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2025-11-05T09:56:16.737+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'python /opt/airflow/scripts/monitor.py']
+[2025-11-05T09:56:16.744+0000] {subprocess.py:86} INFO - Output:
+[2025-11-05T09:56:18.264+0000] {subprocess.py:93} INFO - DATA_DIR=/opt/airflow/datamart/gold
+[2025-11-05T09:56:18.266+0000] {subprocess.py:93} INFO - MODEL_BANK_DIR=/opt/airflow/model_bank
+[2025-11-05T09:56:18.268+0000] {subprocess.py:93} INFO - Date range: 2024-05-01 .. 2024-09-01
+[2025-11-05T09:56:18.269+0000] {subprocess.py:93} INFO - 
+[2025-11-05T09:56:18.271+0000] {subprocess.py:93} INFO - 
+[2025-11-05T09:56:18.272+0000] {subprocess.py:93} INFO - ========== PART 1: Logistic Regression monitor ==========
+[2025-11-05T09:56:18.273+0000] {subprocess.py:93} INFO - [LogReg][2024-05-01] n=210 pos=29 neg=181 pred_mean=0.4130
+[2025-11-05T09:56:18.274+0000] {subprocess.py:93} INFO -     auc=0.6919 pr_auc=0.2555 ks=0.3431 f1=0.3220 prec=0.2135 rec=0.6552 acc=0.6190 brier=0.2365 logloss=0.6748
+[2025-11-05T09:56:18.275+0000] {subprocess.py:93} INFO - [LogReg][2024-06-01] n=221 pos=33 neg=188 pred_mean=0.4185
+[2025-11-05T09:56:18.276+0000] {subprocess.py:93} INFO -     auc=0.6862 pr_auc=0.2969 ks=0.3720 f1=0.3622 prec=0.2447 rec=0.6970 acc=0.6335 brier=0.2389 logloss=0.6957
+[2025-11-05T09:56:18.277+0000] {subprocess.py:93} INFO - [LogReg][2024-07-01] n=231 pos=40 neg=191 pred_mean=0.4096
+[2025-11-05T09:56:18.278+0000] {subprocess.py:93} INFO -     auc=0.7284 pr_auc=0.3474 ks=0.4213 f1=0.4380 prec=0.3093 rec=0.7500 acc=0.6667 brier=0.2231 logloss=0.6467
+[2025-11-05T09:56:18.279+0000] {subprocess.py:93} INFO - [LogReg][2024-08-01] n=221 pos=32 neg=189 pred_mean=0.4369
+[2025-11-05T09:56:18.280+0000] {subprocess.py:93} INFO -     auc=0.6538 pr_auc=0.2435 ks=0.2753 f1=0.3259 prec=0.2136 rec=0.6875 acc=0.5882 brier=0.2582 logloss=0.7325
+[2025-11-05T09:56:18.282+0000] {subprocess.py:93} INFO - [LogReg][2024-09-01] n=216 pos=38 neg=178 pred_mean=0.4360
+[2025-11-05T09:56:18.283+0000] {subprocess.py:93} INFO -     auc=0.7698 pr_auc=0.3805 ks=0.4902 f1=0.4697 prec=0.3298 rec=0.8158 acc=0.6759 brier=0.2181 logloss=0.6366
+[2025-11-05T09:56:18.284+0000] {subprocess.py:93} INFO - 
+[2025-11-05T09:56:18.285+0000] {subprocess.py:93} INFO - ========== PART 2: CatBoost monitor ==========
+[2025-11-05T09:56:18.287+0000] {subprocess.py:93} INFO - [CatBoost][2024-05-01] n=210 pos=29 neg=181 pred_mean=0.4083
+[2025-11-05T09:56:18.288+0000] {subprocess.py:93} INFO -     auc=0.7190 pr_auc=0.4038 ks=0.3888 f1=0.3276 prec=0.2184 rec=0.6552 acc=0.6286 brier=0.2206 logloss=0.6195
+[2025-11-05T09:56:18.289+0000] {subprocess.py:93} INFO - [CatBoost][2024-06-01] n=221 pos=33 neg=188 pred_mean=0.4163
+[2025-11-05T09:56:18.290+0000] {subprocess.py:93} INFO -     auc=0.7176 pr_auc=0.3376 ks=0.4060 f1=0.3710 prec=0.2527 rec=0.6970 acc=0.6471 brier=0.2251 logloss=0.6326
+[2025-11-05T09:56:18.291+0000] {subprocess.py:93} INFO - [CatBoost][2024-07-01] n=231 pos=40 neg=191 pred_mean=0.3972
+[2025-11-05T09:56:18.292+0000] {subprocess.py:93} INFO -     auc=0.7352 pr_auc=0.4061 ks=0.4568 f1=0.4688 prec=0.3409 rec=0.7500 acc=0.7056 brier=0.2076 logloss=0.6047
+[2025-11-05T09:56:18.292+0000] {subprocess.py:93} INFO - [CatBoost][2024-08-01] n=221 pos=32 neg=189 pred_mean=0.4306
+[2025-11-05T09:56:18.293+0000] {subprocess.py:93} INFO -     auc=0.6728 pr_auc=0.2710 ks=0.3552 f1=0.3182 prec=0.2100 rec=0.6562 acc=0.5928 brier=0.2451 logloss=0.6924
+[2025-11-05T09:56:18.295+0000] {subprocess.py:93} INFO - [CatBoost][2024-09-01] n=216 pos=38 neg=178 pred_mean=0.4210
+[2025-11-05T09:56:18.295+0000] {subprocess.py:93} INFO -     auc=0.7737 pr_auc=0.3631 ks=0.5517 f1=0.4923 prec=0.3478 rec=0.8421 acc=0.6944 brier=0.2046 logloss=0.5927
+[2025-11-05T09:56:18.358+0000] {subprocess.py:97} INFO - Command exited with return code 0
+[2025-11-05T09:56:18.398+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2025-11-05T09:56:18.399+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=e2e_pipeline, task_id=monitor, run_id=manual__2025-11-05T09:55:30.974057+00:00, execution_date=20251105T095530, start_date=20251105T095616, end_date=20251105T095618
+[2025-11-05T09:56:18.441+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-11-05T09:56:18.457+0000] {taskinstance.py:3900} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-11-05T09:56:18.459+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

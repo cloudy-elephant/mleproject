@@ -1,0 +1,56 @@
+[2025-11-05T09:16:03.878+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-11-05T09:16:03.896+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: e2e_pipeline.bronze_process manual__2025-11-05T09:16:00.264039+00:00 [queued]>
+[2025-11-05T09:16:03.911+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: e2e_pipeline.bronze_process manual__2025-11-05T09:16:00.264039+00:00 [queued]>
+[2025-11-05T09:16:03.912+0000] {taskinstance.py:2865} INFO - Starting attempt 1 of 1
+[2025-11-05T09:16:03.948+0000] {taskinstance.py:2888} INFO - Executing <Task(BashOperator): bronze_process> on 2025-11-05 09:16:00.264039+00:00
+[2025-11-05T09:16:03.954+0000] {standard_task_runner.py:72} INFO - Started process 50 to run task
+[2025-11-05T09:16:03.959+0000] {standard_task_runner.py:104} INFO - Running: ['airflow', 'tasks', 'run', 'e2e_pipeline', 'bronze_process', 'manual__2025-11-05T09:16:00.264039+00:00', '--job-id', '30', '--raw', '--subdir', 'DAGS_FOLDER/e2e_pipeline_dag.py', '--cfg-path', '/tmp/tmpyev0of94']
+[2025-11-05T09:16:03.962+0000] {standard_task_runner.py:105} INFO - Job 30: Subtask bronze_process
+[2025-11-05T09:16:04.051+0000] {task_command.py:467} INFO - Running <TaskInstance: e2e_pipeline.bronze_process manual__2025-11-05T09:16:00.264039+00:00 [running]> on host 9d186853eb29
+[2025-11-05T09:16:04.175+0000] {taskinstance.py:3131} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='e2e_pipeline' AIRFLOW_CTX_TASK_ID='bronze_process' AIRFLOW_CTX_EXECUTION_DATE='2025-11-05T09:16:00.264039+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-11-05T09:16:00.264039+00:00'
+[2025-11-05T09:16:04.177+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2025-11-05T09:16:04.212+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2025-11-05T09:16:04.213+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'python /opt/airflow/scripts/bronze_process.py']
+[2025-11-05T09:16:04.221+0000] {subprocess.py:86} INFO - Output:
+[2025-11-05T09:16:05.384+0000] {subprocess.py:93} INFO - [bronze] 数据目录：/opt/airflow/data
+[2025-11-05T09:16:05.385+0000] {subprocess.py:93} INFO - [bronze] lable输出目录：/opt/airflow/datamart/bronze/label_store
+[2025-11-05T09:16:05.386+0000] {subprocess.py:93} INFO - [bronze] feature输出目录：/opt/airflow/datamart/bronze/feature_store
+[2025-11-05T09:16:05.387+0000] {subprocess.py:93} INFO - [bronze] 使用标签文件：label.csv
+[2025-11-05T09:16:05.388+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2023_02_01.csv
+[2025-11-05T09:16:05.390+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2023_03_01.csv
+[2025-11-05T09:16:05.391+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2023_04_01.csv
+[2025-11-05T09:16:05.391+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2023_05_01.csv
+[2025-11-05T09:16:05.392+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2023_06_01.csv
+[2025-11-05T09:16:05.393+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2023_07_01.csv
+[2025-11-05T09:16:05.394+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2023_08_01.csv
+[2025-11-05T09:16:05.395+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2023_09_01.csv
+[2025-11-05T09:16:05.395+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2023_10_01.csv
+[2025-11-05T09:16:05.396+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2023_11_01.csv
+[2025-11-05T09:16:05.398+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2023_12_01.csv
+[2025-11-05T09:16:05.399+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2024_01_01.csv
+[2025-11-05T09:16:05.400+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2024_02_01.csv
+[2025-11-05T09:16:05.400+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2024_03_01.csv
+[2025-11-05T09:16:05.401+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2024_04_01.csv
+[2025-11-05T09:16:05.402+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2024_05_01.csv
+[2025-11-05T09:16:05.403+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2024_06_01.csv
+[2025-11-05T09:16:05.404+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2024_07_01.csv
+[2025-11-05T09:16:05.405+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2024_08_01.csv
+[2025-11-05T09:16:05.406+0000] {subprocess.py:93} INFO - [bronze] 已写出：/opt/airflow/datamart/bronze/label_store/lable_2024_09_01.csv
+[2025-11-05T09:16:05.407+0000] {subprocess.py:93} INFO - [bronze] 共生成 20 个分片文件。
+[2025-11-05T09:16:05.408+0000] {subprocess.py:93} INFO - [bronze] 已复制 feature.csv 到：/opt/airflow/datamart/bronze/feature_store/demographic_df_noisy.csv
+[2025-11-05T09:16:05.409+0000] {subprocess.py:93} INFO - [bronze] 已复制 feature.csv 到：/opt/airflow/datamart/bronze/feature_store/financial_df_noisy.csv
+[2025-11-05T09:16:05.410+0000] {subprocess.py:93} INFO - [bronze] 已复制 feature.csv 到：/opt/airflow/datamart/bronze/feature_store/contract_df_noisy.csv
+[2025-11-05T09:16:05.411+0000] {subprocess.py:93} INFO - [bronze] 已复制 feature.csv 到：/opt/airflow/datamart/bronze/feature_store/service_df_noisy.csv
+[2025-11-05T09:16:05.411+0000] {subprocess.py:93} INFO - [bronze] 已复制 feature.csv 到：/opt/airflow/datamart/bronze/feature_store/demographic_df_noisy.csv
+[2025-11-05T09:16:05.412+0000] {subprocess.py:93} INFO - [bronze] 已复制 feature.csv 到：/opt/airflow/datamart/bronze/feature_store/demographic_df_noisy.csv
+[2025-11-05T09:16:05.413+0000] {subprocess.py:93} INFO - [bronze] 已复制 feature.csv 到：/opt/airflow/datamart/bronze/feature_store/financial_df_noisy.csv
+[2025-11-05T09:16:05.414+0000] {subprocess.py:93} INFO - [bronze] 已复制 feature.csv 到：/opt/airflow/datamart/bronze/feature_store/contract_df_noisy.csv
+[2025-11-05T09:16:05.414+0000] {subprocess.py:93} INFO - [bronze] 已复制 feature.csv 到：/opt/airflow/datamart/bronze/feature_store/service_df_noisy.csv
+[2025-11-05T09:16:05.415+0000] {subprocess.py:93} INFO - [bronze] 已复制 feature.csv 到：/opt/airflow/datamart/bronze/feature_store/demographic_df_noisy.csv
+[2025-11-05T09:16:05.416+0000] {subprocess.py:93} INFO - [bronze] 全部完成。
+[2025-11-05T09:16:05.437+0000] {subprocess.py:97} INFO - Command exited with return code 0
+[2025-11-05T09:16:05.477+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2025-11-05T09:16:05.478+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=e2e_pipeline, task_id=bronze_process, run_id=manual__2025-11-05T09:16:00.264039+00:00, execution_date=20251105T091600, start_date=20251105T091603, end_date=20251105T091605
+[2025-11-05T09:16:05.537+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-11-05T09:16:05.577+0000] {taskinstance.py:3900} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2025-11-05T09:16:05.589+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

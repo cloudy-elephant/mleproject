@@ -1,0 +1,112 @@
+[2025-11-05T09:22:27.784+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-11-05T09:22:27.799+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: e2e_pipeline.catboost_gold_train manual__2025-11-05T09:16:00.264039+00:00 [queued]>
+[2025-11-05T09:22:27.809+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: e2e_pipeline.catboost_gold_train manual__2025-11-05T09:16:00.264039+00:00 [queued]>
+[2025-11-05T09:22:27.809+0000] {taskinstance.py:2865} INFO - Starting attempt 4 of 4
+[2025-11-05T09:22:27.842+0000] {taskinstance.py:2888} INFO - Executing <Task(BashOperator): catboost_gold_train> on 2025-11-05 09:16:00.264039+00:00
+[2025-11-05T09:22:27.846+0000] {standard_task_runner.py:72} INFO - Started process 390 to run task
+[2025-11-05T09:22:27.850+0000] {standard_task_runner.py:104} INFO - Running: ['airflow', 'tasks', 'run', 'e2e_pipeline', 'catboost_gold_train', 'manual__2025-11-05T09:16:00.264039+00:00', '--job-id', '38', '--raw', '--subdir', 'DAGS_FOLDER/e2e_pipeline_dag.py', '--cfg-path', '/tmp/tmp1ojxa0_n']
+[2025-11-05T09:22:27.853+0000] {standard_task_runner.py:105} INFO - Job 38: Subtask catboost_gold_train
+[2025-11-05T09:22:27.935+0000] {task_command.py:467} INFO - Running <TaskInstance: e2e_pipeline.catboost_gold_train manual__2025-11-05T09:16:00.264039+00:00 [running]> on host 9d186853eb29
+[2025-11-05T09:22:28.036+0000] {taskinstance.py:3131} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='airflow' AIRFLOW_CTX_DAG_ID='e2e_pipeline' AIRFLOW_CTX_TASK_ID='catboost_gold_train' AIRFLOW_CTX_EXECUTION_DATE='2025-11-05T09:16:00.264039+00:00' AIRFLOW_CTX_TRY_NUMBER='4' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-11-05T09:16:00.264039+00:00'
+[2025-11-05T09:22:28.038+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2025-11-05T09:22:28.051+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2025-11-05T09:22:28.054+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'python /opt/airflow/scripts/catboost_gold_train.py']
+[2025-11-05T09:22:28.063+0000] {subprocess.py:86} INFO - Output:
+[2025-11-05T09:22:29.598+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO] ============================================================
+[2025-11-05T09:22:29.601+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO] CatBoost Gold Price Prediction - 开始训练
+[2025-11-05T09:22:29.603+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO] ============================================================
+[2025-11-05T09:22:29.605+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO]
+[2025-11-05T09:22:29.606+0000] {subprocess.py:93} INFO - 配置信息:
+[2025-11-05T09:22:29.607+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO]   数据路径: opt/airflow/datamart/gold
+[2025-11-05T09:22:29.609+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO]   输出路径: opt/airflow/model_bank/catboost
+[2025-11-05T09:22:29.610+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO]   训练范围: (2023, 2) - (2024, 4)
+[2025-11-05T09:22:29.610+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO]   OOT范围:  (2024, 5) - (2024, 9)
+[2025-11-05T09:22:29.611+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO] ============================================================
+[2025-11-05T09:22:29.612+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO] 开始读取黄金价格数据...
+[2025-11-05T09:22:29.612+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO] ============================================================
+[2025-11-05T09:22:29.612+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO]
+[2025-11-05T09:22:29.613+0000] {subprocess.py:93} INFO - 训练集: 2023-02 至 2024-04 (共15个月)
+[2025-11-05T09:22:29.614+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO] OOT集: 2024-05 至 2024-09 (共5个月)
+[2025-11-05T09:22:29.615+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO]
+[2025-11-05T09:22:29.616+0000] {subprocess.py:93} INFO - 读取训练集数据...
+[2025-11-05T09:22:29.616+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [INFO] ------------------------------------------------------------
+[2025-11-05T09:22:29.617+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2023_02_01.csv: 文件不存在
+[2025-11-05T09:22:29.618+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2023_03_01.csv: 文件不存在
+[2025-11-05T09:22:29.620+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2023_04_01.csv: 文件不存在
+[2025-11-05T09:22:29.621+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2023_05_01.csv: 文件不存在
+[2025-11-05T09:22:29.622+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2023_06_01.csv: 文件不存在
+[2025-11-05T09:22:29.623+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2023_07_01.csv: 文件不存在
+[2025-11-05T09:22:29.623+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2023_08_01.csv: 文件不存在
+[2025-11-05T09:22:29.624+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2023_09_01.csv: 文件不存在
+[2025-11-05T09:22:29.625+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2023_10_01.csv: 文件不存在
+[2025-11-05T09:22:29.625+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2023_11_01.csv: 文件不存在
+[2025-11-05T09:22:29.626+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2023_12_01.csv: 文件不存在
+[2025-11-05T09:22:29.627+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2024_01_01.csv: 文件不存在
+[2025-11-05T09:22:29.627+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2024_02_01.csv: 文件不存在
+[2025-11-05T09:22:29.628+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2024_03_01.csv: 文件不存在
+[2025-11-05T09:22:29.628+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [WARNING]   ⚠ gold_2024_04_01.csv: 文件不存在
+[2025-11-05T09:22:29.629+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [ERROR]
+[2025-11-05T09:22:29.629+0000] {subprocess.py:93} INFO - ❌ 训练过程出错: 错误: 没有找到任何训练集数据文件！
+[2025-11-05T09:22:29.630+0000] {subprocess.py:93} INFO - 2025-11-05 09:22:29,598 [ERROR] 详细错误信息:
+[2025-11-05T09:22:29.631+0000] {subprocess.py:93} INFO - Traceback (most recent call last):
+[2025-11-05T09:22:29.631+0000] {subprocess.py:93} INFO -   File "/opt/airflow/scripts/catboost_gold_train.py", line 721, in main
+[2025-11-05T09:22:29.632+0000] {subprocess.py:93} INFO -     train_df, oot_df = data_loader.load_data()
+[2025-11-05T09:22:29.633+0000] {subprocess.py:93} INFO -   File "/opt/airflow/scripts/catboost_gold_train.py", line 141, in load_data
+[2025-11-05T09:22:29.634+0000] {subprocess.py:93} INFO -     train_df = self._read_months(train_months, "训练集")
+[2025-11-05T09:22:29.635+0000] {subprocess.py:93} INFO -   File "/opt/airflow/scripts/catboost_gold_train.py", line 183, in _read_months
+[2025-11-05T09:22:29.635+0000] {subprocess.py:93} INFO -     raise ValueError(f"错误: 没有找到任何{dataset_name}数据文件！")
+[2025-11-05T09:22:29.636+0000] {subprocess.py:93} INFO - ValueError: 错误: 没有找到任何训练集数据文件！
+[2025-11-05T09:22:29.770+0000] {subprocess.py:97} INFO - Command exited with return code 1
+[2025-11-05T09:22:29.785+0000] {taskinstance.py:3310} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/taskinstance.py", line 767, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/taskinstance.py", line 733, in _execute_callable
+    return ExecutionCallableRunner(
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/baseoperator.py", line 406, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/operators/bash.py", line 249, in execute
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 1.
+[2025-11-05T09:22:29.789+0000] {taskinstance.py:1225} INFO - Marking task as FAILED. dag_id=e2e_pipeline, task_id=catboost_gold_train, run_id=manual__2025-11-05T09:16:00.264039+00:00, execution_date=20251105T091600, start_date=20251105T092227, end_date=20251105T092229
+[2025-11-05T09:22:29.826+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2025-11-05T09:22:29.828+0000] {standard_task_runner.py:124} ERROR - Failed to execute job 38 for task catboost_gold_train (Bash command failed. The command returned a non-zero exit code 1.; 390)
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/task/task_runner/standard_task_runner.py", line 117, in _start_by_fork
+    ret = args.func(args, dag=self.dag)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/cli/cli_config.py", line 49, in command
+    return func(*args, **kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/utils/cli.py", line 115, in wrapper
+    return f(*args, **kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/cli/commands/task_command.py", line 483, in task_run
+    task_return_code = _run_task_by_selected_method(args, _dag, ti)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/cli/commands/task_command.py", line 256, in _run_task_by_selected_method
+    return _run_raw_task(args, ti)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/cli/commands/task_command.py", line 341, in _run_raw_task
+    return ti._run_raw_task(
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/utils/session.py", line 97, in wrapper
+    return func(*args, session=session, **kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/taskinstance.py", line 3004, in _run_raw_task
+    return _run_raw_task(
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/taskinstance.py", line 273, in _run_raw_task
+    TaskInstance._execute_task_with_callbacks(
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/taskinstance.py", line 3158, in _execute_task_with_callbacks
+    result = self._execute_task(context, task_orig)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/taskinstance.py", line 3182, in _execute_task
+    return _execute_task(self, context, task_orig)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/taskinstance.py", line 767, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/taskinstance.py", line 733, in _execute_callable
+    return ExecutionCallableRunner(
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/utils/operator_helpers.py", line 252, in run
+    return self.func(*args, **kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/models/baseoperator.py", line 406, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/airflow/.local/lib/python3.10/site-packages/airflow/operators/bash.py", line 249, in execute
+    raise AirflowException(
+airflow.exceptions.AirflowException: Bash command failed. The command returned a non-zero exit code 1.
+[2025-11-05T09:22:29.871+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 1
+[2025-11-05T09:22:29.902+0000] {taskinstance.py:3900} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-11-05T09:22:29.924+0000] {local_task_job_runner.py:245} INFO - ::endgroup::
