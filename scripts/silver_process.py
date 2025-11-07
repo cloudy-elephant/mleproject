@@ -1,22 +1,4 @@
 # -*- coding: utf-8 -*-
-# """
-# silver_process.py
-#
-# 功能：
-# - 从 bronze/feature_store 读取四个 noisy 表（只清洗 demographic_df_noisy 与 financial_df_noisy）
-# - 输出到 silver/feature_store 目录（自动创建）
-# - 保留审计字段（_raw、_was_negative、_was_outlier_... 等），便于回溯
-#
-# 来源路径（固定）：
-# C:\Users\HP\Desktop\MLE\mleproject\datamart\bronze\feature_store\contract_df_noisy.csv
-# C:\Users\HP\Desktop\MLE\mleproject\datamart\bronze\feature_store\demographic_df_noisy.csv
-# C:\Users\HP\Desktop\MLE\mleproject\datamart\bronze\feature_store\financial_df_noisy.csv
-# C:\Users\HP\Desktop\MLE\mleproject\datamart\bronze\feature_store\service_df_noisy.csv
-#
-# 目标路径（固定）：
-# C:\Users\HP\Desktop\MLE\mleproject\datamart\silver\feature_store\demographic_df_clean.csv
-# C:\Users\HP\Desktop\MLE\mleproject\datamart\silver\feature_store\financial_df_clean.csv
-# """
 
 from pathlib import Path
 import pandas as pd
@@ -28,7 +10,6 @@ import re
 import os
 
 
-# 可选依赖（模糊匹配）。没有 rapidfuzz 时退化到 difflib。
 try:
     from rapidfuzz import process as rf_process
     def fuzzy_best(val, choices):
@@ -44,7 +25,6 @@ except Exception:
                 best, best_score = c, s
         return best, best_score
 
-# --------- 常量路径（按你的要求固定） ---------
 ROOT = Path(os.getenv("PROJECT_ROOT", os.getenv("AIRFLOW_PROJ_DIR", "/opt/airflow"))).resolve()
 if not ROOT.exists():
     ROOT = Path(r"C:\Users\HP\Desktop\MLE\mleproject").resolve()
@@ -53,7 +33,6 @@ DATAMART   = ROOT / "datamart"
 BRONZE_DIR = DATAMART / "bronze" / "feature_store"
 SILVER_DIR = DATAMART / "silver" / "feature_store"
 
-# 确保输出目录存在（只需要确保 silver 输出目录；bronze 由上游生成）
 SILVER_DIR.mkdir(parents=True, exist_ok=True)
 
 PATHS = {
@@ -100,7 +79,7 @@ def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
         df["snapdate"] = pd.to_datetime(df["snapdate"], errors="coerce")
     return df
 
-# ------------------- Demographic 清洗 -------------------
+# ------------------- Demographic -------------------
 def clean_demographic(df: pd.DataFrame) -> pd.DataFrame:
     df = normalize_columns(df)
 
@@ -108,11 +87,9 @@ def clean_demographic(df: pd.DataFrame) -> pd.DataFrame:
     if "gender" in df.columns:
         df["gender"] = df["gender"].astype(str).str.strip().str.lower()
         basic_map = {
-            # female 常见脏写
             "female":"female","f":"female","femail":"female","femole":"female",
             "cemale":"female","femade":"female","femcle":"female","fomale":"female",
             "gemale":"female","temale":"female","pemale":"female","nemale":"female","vale":"female",
-            # male 常见脏写
             "male":"male","m":"male","maie":"male","mahe":"male","mace":"male","bale":"male",
             "oale":"male","make":"male","maln":"male","maze":"male",
         }
@@ -123,27 +100,12 @@ def clean_demographic(df: pd.DataFrame) -> pd.DataFrame:
             return m if score > 70 else np.nan
         df["gender"] = df["gender"].apply(_fzg)
 
-    # Partner / Dependents -> 统一 Yes/No
-    # def clean_yesno(col):
-    #     if col not in df.columns: return
-    #     df[col] = df[col].astype(str).str.strip().str.lower()
-    #     manual = {"yes":"Yes","y":"Yes","yep":"Yes","yeah":"Yes","yess":"Yes",
-    #               "no":"No","n":"No","nope":"No"}
-    #     df[col] = df[col].replace(manual)
-    #     def _f(v):
-    #         if pd.isna(v) or v == "": return np.nan
-    #         if v in ("yes","no"): return v.capitalize()
-    #         m, score = fuzzy_best(v, ["yes","no"])
-    #         return m.capitalize() if score > 70 else np.nan
-    #     df[col] = df[col].apply(_f)
-    #
     def clean_yesno(col):
         if col not in df.columns:
             return
 
         s = df[col].astype(str).str.strip().str.lower()
 
-        # 统一去噪（末尾标点、1.0/0.0 等）
         s = (s
              .str.replace(r"[，。、,.;：:]+$", "", regex=True)
              .str.replace(r"^\s*([01])\.0\s*$", r"\1", regex=True)  # 1.0 -> 1
@@ -151,32 +113,25 @@ def clean_demographic(df: pd.DataFrame) -> pd.DataFrame:
              )
 
         mapping = {
-            # 英文/缩写
             "yes": "Yes", "y": "Yes", "yeah": "Yes", "yep": "Yes", "yess": "Yes",
             "no": "No", "n": "No", "nope": "No",
 
-            # 数字/布尔/开关
             "1": "Yes", "true": "Yes", "t": "Yes", "on": "Yes",
             "0": "No", "false": "No", "f": "No", "off": "No",
 
-            # 符号
             "✓": "Yes", "✔": "Yes", "✔️": "Yes",
             "✗": "No", "✘": "No",
 
-            # 中文
             "是": "Yes", "有": "Yes", "开启": "Yes", "开": "Yes",
             "否": "No", "无": "No", "关闭": "No", "关": "No",
 
-            # 空值
             "": "", "na": "", "none": "", "nan": ""
         }
 
-        # 先按映射表粗清
         s = s.map(lambda v: mapping.get(v, v))
 
-        # 再做一次兜底：把非空、非 Yes/No 的值做模糊匹配
         def _to_yesno(v):
-            if v in ("Yes", "No", ""):  # 已经标准化或空
+            if v in ("Yes", "No", ""):
                 return v
             if v is None:
                 return ""
@@ -185,7 +140,6 @@ def clean_demographic(df: pd.DataFrame) -> pd.DataFrame:
 
         s = s.map(_to_yesno)
 
-        # 空串 -> NaN（如果希望把缺失当成 No，可改成 s.replace({"": "No"}））
         s = s.replace({"": np.nan})
 
         df[col] = s
@@ -226,7 +180,6 @@ def clean_demographic(df: pd.DataFrame) -> pd.DataFrame:
     # AnnualIncomeBracket -> 60–100k / 100–150k / >150k
     if "AnnualIncomeBracket" in df.columns:
         s = df["AnnualIncomeBracket"].astype(str).str.strip().str.lower()
-        # 常见 OCR 错误修正
         s = s.replace({
             r"1[tfq]0":"150",
             r"6[zf]":"60",
@@ -240,13 +193,12 @@ def clean_demographic(df: pd.DataFrame) -> pd.DataFrame:
             return m.replace("-", "–") if score > 70 else np.nan
         df["AnnualIncomeBracket"] = s.apply(_income)
 
-    # 去掉关键键缺失
     if "customerID" in df.columns:
         df = df[df["customerID"].notna() & (df["customerID"].astype(str).str.strip()!="")]
 
     return df
 
-# ------------------- Financial 清洗 -------------------
+# ------------------- Financial ------------------
 def clean_monthly_charges(df: pd.DataFrame,
                           col="MonthlyCharges",
                           keep_refund=False,
@@ -390,7 +342,6 @@ def clean_app_login_frequency(df: pd.DataFrame,
 def clean_financial(df: pd.DataFrame) -> pd.DataFrame:
     df = normalize_columns(df)
 
-    # 先删除不需要的列（与之前脚本一致）
     for c in ["tenure", "LatePaymentCount"]:
         if c in df.columns:
             df = df.drop(columns=[c])
@@ -406,11 +357,9 @@ def clean_financial(df: pd.DataFrame) -> pd.DataFrame:
                                        negative_policy="zero", round_mode="floor",
                                        outlier_mode="nan", iqr_k=3.0)
 
-    # 重要键
     if "customerID" in df.columns:
         df = df[df["customerID"].notna() & (df["customerID"].astype(str).str.strip()!="")]
 
-    # 可选：保留关键列（按你之前的习惯）
     keep_cols = [c for c in [
         "MonthlyCharges", "AverageDataUsage", "AppLoginFrequency",
         "CustomerSatisfactionScore", "customerID"
@@ -427,18 +376,14 @@ def clean_contract():
     print("✅ Cleaning contract_df_noisy...")
     df = pd.read_csv(CONTRACT_PATH)
 
-    # 删除 Contract 列中为 "unknown" 的行
     if "Contract" in df.columns:
         df = df[df["Contract"].astype(str).str.lower() != "unknown"]
 
-    # 清理 snapdate 格式（仅尝试解析，不改变值）
     if "snapdate" in df.columns:
         df["snapdate"] = pd.to_datetime(df["snapdate"], errors="coerce")
 
-    # 删除重复行
     df = df.drop_duplicates()
 
-    # 保存结果
     df.to_csv(CONTRACT_OUT, index=False, encoding="utf-8-sig")
     print(f"✅ Saved cleaned contract to: {CONTRACT_OUT}")
 
@@ -449,17 +394,13 @@ def clean_service():
     print("✅ Cleaning service_df_noisy...")
     df = pd.read_csv(SERVICE_PATH)
 
-    # 清理 snapdate 格式（仅解析，不改成月初）
     if "snapdate" in df.columns:
         df["snapdate"] = pd.to_datetime(df["snapdate"], errors="coerce")
 
-    # 填充缺失值（非强制，可按需保留）
     df = df.fillna("")
 
-    # 删除重复行
     df = df.drop_duplicates()
 
-    # 保存结果
     df.to_csv(SERVICE_OUT, index=False, encoding="utf-8-sig")
     print(f"✅ Saved cleaned service to: {SERVICE_OUT}")
 
@@ -470,7 +411,7 @@ def copy_lable_file(data_dir: Path, out_dir: Path):
             if f.is_file():
                 shutil.copy2(f, out_dir / f.name)
 # use for lable file copy
-LABLE_FILE = "label.csv"  # 统一正确拼写
+LABLE_FILE = "label.csv"
 DATA_DIR = DATAMART/ "bronze" / "label_store"
 BRONZE_DIR_LABEL = DATAMART/ "bronze" / "label_store"
 SILVER_DIR_LABEL = DATAMART/ "silver" / "label_store"
@@ -484,21 +425,19 @@ def main():
 
     copy_lable_file(BRONZE_DIR_LABEL, SILVER_DIR_LABEL)
 
-    # 只清洗 demographic 与 financial；其它两个表此阶段不处理
     demo_path = PATHS["demographic"]
     fin_path  = PATHS["financial"]
 
-    log(f"读取：{demo_path}")
+    log(f"loading：{demo_path}")
     demographic_df = read_csv_any(demo_path)
-    log(f"读取：{fin_path}")
+    log(f"loading：{fin_path}")
     financial_df = read_csv_any(fin_path)
 
-    log("清洗 demographic_df_noisy ...")
+    log(" demographic_df_noisy ...")
     demographic_clean = clean_demographic(demographic_df)
-    log("清洗 financial_df_noisy ...")
+    log(" financial_df_noisy ...")
     financial_clean = clean_financial(financial_df)
 
-    # 输出
     out_demo = OUT_FILES["demographic"]
     out_fin  = OUT_FILES["financial"]
     demographic_clean.to_csv(out_demo, index=False, encoding="utf-8-sig")
@@ -507,7 +446,7 @@ def main():
     clean_service()
     clean_contract()
 
-    log("✅ 导出完成：")
+    log("✅ output finished：")
     log(f" - {out_demo}")
     log(f" - {out_fin}")
 

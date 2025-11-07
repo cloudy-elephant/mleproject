@@ -65,14 +65,14 @@ services:
       - airflow-scheduler
       - postgres
     healthcheck:
-      # 用 python 标准库检测 /health，避免 curl 依赖
+
       test: ["CMD-SHELL", "python -c \"import sys,urllib.request; r=urllib.request.urlopen('http://localhost:8080/health'); sys.exit(0 if r.status==200 else 1)\""]
       interval: 10s
       timeout: 5s
       retries: 12
       start_period: 20s
 
-  # webserver 健康后打印 URL
+  # webserver print URL
   announce:
     image: alpine:3.20
     depends_on:

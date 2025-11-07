@@ -50,11 +50,10 @@ BASE_DIR = Path(
 if not BASE_DIR.exists():
     BASE_DIR = Path(r"C:\Users\HP\Desktop\MLE\mleproject").resolve()
 
-# === 数据与模型路径 ===
+# === data and model path ===
 DATA_DIR = BASE_DIR / "datamart" / "gold"
 MODEL_BANK_DIR = BASE_DIR / "model_bank"
 
-# === 标签列、ID列、快照列候选名 ===
 LABEL_COL_CANDIDATES = ["label", "churn", "is_churn", "target"]
 ID_COL_CANDIDATES = [
     "Customer_ID", "customerID", "customer_id",
